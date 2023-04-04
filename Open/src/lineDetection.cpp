@@ -1,4 +1,6 @@
-#include "lineDetection.h"
+#include <lineDetection.h>
+#include <math.h>
+#include <trig.h>
 
 LineDetection::LineDetection(){
     //Constructor
@@ -52,6 +54,71 @@ int *LineDetection::GetValues()
     }
 };
 
-double LineDetection::GetAngle(){
+ double LineDetection::GetAngle(int *calibrateVal, int *lineVal, int *sensorVal, double *sinVal, double *cosVal){
+    lineValues = lineVal;
+    sensorAngles = sensorVal;
+    negativeLow = false;
 
+    initialAngle = -1;
+    linepresent = false;
+    double *cosValues = cosVal;
+    double *sinValues = sinVal;
+    double totalCos = 0;
+    double totalSin = 0;  
+
+    for (int i = 0; i < 24; i++)
+        {
+            if (lineValues[i] < calibrateVal[i])
+            {
+
+                lineValues[i] = 0;
+                dotProduct[i] = 0;
+            }
+            else
+            {
+                lineValues[i] = 1;
+                linepresent = true;
+                dotProduct[i] = sensorAngles[i];
+            }        
+        }
+
+    int lowestDot = 2;
+    int firstAngle =  0, secondAngle = 0;
+    for (int i = 0; i < 24; i++)
+    {
+        for (int j = 0; j < 24; j++)
+        {
+            if (dotProduct[i] != 0 && dotProduct[j] != 0)
+            {
+                int dot = (sinValues[i] * sinValues[j]) + (cosValues[i] * cosValues[j]);
+                if (dot < lowestDot)
+                {
+                    lowestDot = dot;
+                    firstAngle = i;
+                    secondAngle = j;
+                }
+            }
+        }
+    }
+
+    totalCos = cosValues[firstAngle] + cosValues[secondAngle];
+    totalSin = sinValues[firstAngle] + sinValues[secondAngle];
+                
+    anglebisc = toDegrees(atan2(totalCos, totalSin));
+    int sensorAngle = abs(sensorAngles[firstAngle]-sensorAngles[secondAngle]);
+       if (sensorAngle > 180)
+    {
+        sensorAngle = 360 - sensorAngle;
+    }
+
+    if (totalCos == 0 && totalSin == 0)
+    {
+        anglebisc = initialAngle;
+    }
+    if (anglebisc < 0)
+    {
+
+        anglebisc = anglebisc + 360;
+    }
+    return anglebisc;   
 }
