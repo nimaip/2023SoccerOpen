@@ -17,7 +17,7 @@ LineDetection::LineDetection(){
 int *LineDetection::GetValues()
 {
     for(int i = 0; i < 48; i++){
-        int adcNumber = i/6;
+        int adcNumber = i/8;
         int val = 0;
         int channel = i % 8;
 
@@ -25,33 +25,51 @@ int *LineDetection::GetValues()
             case(0):
                 digitalWrite(23, LOW);
                 val = adc1.analogRead(channel);
+                digitalWrite(23, HIGH);
                 break;
              case(1):
                 digitalWrite(22, LOW);
                 val = adc2.analogRead(channel);
+                digitalWrite(22, HIGH);
                 break;
              case(2):
                 digitalWrite(21, LOW);
                 val = adc3.analogRead(channel);
+                digitalWrite(21, HIGH);
                 break;
              case(3):
                 digitalWrite(20, LOW);
                 val = adc4.analogRead(channel);
+                digitalWrite(20, HIGH);
                 break;
             case(4):
                 digitalWrite(15, LOW);
                 val = adc5.analogRead(channel);
+                digitalWrite(15, HIGH);
                 break;
              case(5):
                 digitalWrite(9, LOW);
                 val = adc6.analogRead(channel);
+                digitalWrite(9, HIGH);
                 break;
             default:
                 break;
 
-            lineValues[i] = val;
+            
         }
+        lineValues[i] = val;
+            
     }
+    int x = 3;
+    for(int i = 8*x; i < 8*x + 8; i++){
+         Serial.print(i);
+         Serial.print(" Line sensor : ");
+         Serial.println(lineValues[i]);
+    }
+    // int y = adc2.analogRead(1);
+    // Serial.println(y);
+    Serial.println();
+    return lineValues;
 };
 
  double LineDetection::GetAngle(int *calibrateVal, int *lineVal, int *sensorVal, double *sinVal, double *cosVal){
