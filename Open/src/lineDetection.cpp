@@ -11,6 +11,13 @@ LineDetection::LineDetection(){
     adc4.begin(20,11, 12, 13);
     adc5.begin(15,11, 12, 13);
     adc6.begin(9,11, 12, 13);
+
+
+    for(int i = 0; i < 48; i++){
+        sensorAngles[i] = i * 7.5;
+        cosValues[i] = cos(toRadians(sensorAngles[i]));
+        sinValues[i] = sin(toRadians(sensorAngles[i]));
+    }
     
 }
 
@@ -60,33 +67,34 @@ int *LineDetection::GetValues()
         lineValues[i] = val;
             
     }
-    int x = 3;
-    for(int i = 8*x; i < 8*x + 8; i++){
-         Serial.print(i);
-         Serial.print(" Line sensor : ");
-         Serial.println(lineValues[i]);
-    }
-    // int y = adc2.analogRead(1);
-    // Serial.println(y);
-    Serial.println();
+    // int x = 3;
+    // for(int i = 8*x; i < 8*x + 8; i++){
+    //      Serial.print(i);
+    //      Serial.print(" Line sensor : ");
+    //      Serial.println(lineValues[i]);
+    // }
+    // // int y = adc2.analogRead(1);
+    // // Serial.println(y);
+    // Serial.println();
     return lineValues;
 };
 
- double LineDetection::GetAngle(int *calibrateVal, int *lineVal, int *sensorVal, double *sinVal, double *cosVal){
-    lineValues = lineVal;
-    sensorAngles = sensorVal;
+ double LineDetection::GetAngle(){
+    lineValues = GetValues();
     negativeLow = false;
 
     initialAngle = -1;
     linepresent = false;
-    double *cosValues = cosVal;
-    double *sinValues = sinVal;
     double totalCos = 0;
     double totalSin = 0;  
 
-    for (int i = 0; i < 24; i++)
+    for (int i = 0; i < 48; i++)
         {
-            if (lineValues[i] < calibrateVal[i])
+            Serial.print("Line Value ");
+            Serial.print(i);
+            Serial.print(": ");
+            Serial.println(lineValues[i]);
+            if (lineValues[i] < 300)
             {
 
                 lineValues[i] = 0;
@@ -102,9 +110,9 @@ int *LineDetection::GetValues()
 
     int lowestDot = 2;
     int firstAngle =  0, secondAngle = 0;
-    for (int i = 0; i < 24; i++)
+    for (int i = 0; i < 48; i++)
     {
-        for (int j = 0; j < 24; j++)
+        for (int j = 0; j < 48; j++)
         {
             if (dotProduct[i] != 0 && dotProduct[j] != 0)
             {

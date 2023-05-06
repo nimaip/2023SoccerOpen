@@ -6,9 +6,8 @@ class LineDetection{
         int initialAngle;
         LineDetection();
         int *GetValues();
-        double GetAngle(int *calibrateVal, int *lineVal, int *sensorVal, double *sinVal, double *cosVal);
-        int *sensorAngles;
-        double *dotProduct;
+        double GetAngle();
+        double dotProduct[48];
         int anglebisc;
      
     private:
@@ -22,4 +21,8 @@ class LineDetection{
         bool negativeLow;
         bool linepresent;
         
+        double sensorAngles[48];
+        double sinValues[48];
+        double cosValues[48];
+
 };

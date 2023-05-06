@@ -20,12 +20,21 @@ private:
     double powerL;
     double powerR;
 
-    int speedU;
-    int speedD;
-    int speedL;
-    int speedR;
+    double speedU;
+    double speedD;
+    double speedL;
+    double speedR;
     int controlU;
     int controlD;
     int controlL;
     int controlR;
+
+    int pinspeedU;
+    int pinspeedD;
+    int pinspeedL;
+    int pinspeedR;
+    int pincontrolU;
+    int pincontrolD;
+    int pincontrolL;
+    int pincontrolR;
 };
