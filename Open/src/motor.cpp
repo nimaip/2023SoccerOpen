@@ -28,7 +28,7 @@ Motor::Motor()
     max_power = 0;
 };
 
-void Motor::Move(double intended_angle)
+void Motor::Move(double intended_angle, int motor_power)
 {
     // double intended_angle = 0; // intended angle for robot to move
     // robot_base_angle is the angle shift required to work in the reference frame 
@@ -37,11 +37,11 @@ void Motor::Move(double intended_angle)
     if(intended_angle >= 360){
         intended_angle -= 360;
     }
-    Serial.print("Intended Angle: " );
-    Serial.println(intended_angle);
+    // Serial.print("Intended Angle: " );
+    // Serial.println(intended_angle);
     double intended_angle_rad = toRadians(intended_angle);
-    Serial.print("Intended Angle (Radians): ");
-    Serial.println(intended_angle_rad);
+    // Serial.print("Intended Angle (Radians): ");
+    // Serial.println(intended_angle_rad);
     
     // powerU, powerD, powerL, powerR are the four sides of the square
     powerL = sin(intended_angle_rad);
@@ -51,8 +51,8 @@ void Motor::Move(double intended_angle)
 
     // find max_power among motors to scale
     max_power = max(max(abs(powerU), abs(powerD)), max(abs(powerL), abs(powerR)));
-    Serial.print("Max Power: ");
-    Serial.println(max_power);
+    // Serial.print("Max Power: ");
+    // Serial.println(max_power);
 
     // add correction to account for rotation needed
     // powerL += correction;
@@ -64,11 +64,11 @@ void Motor::Move(double intended_angle)
     controlR = powerR < 0 ? LOW : HIGH;
     controlU = powerU > 0 ? LOW : HIGH;
     controlD = powerD < 0 ? LOW : HIGH;
-    Serial.println("Powers:");
-    Serial.println(powerL);
-    Serial.println(powerR);
-    Serial.println(powerU);
-    Serial.println(powerD);
+    // Serial.println("Powers:");
+    // Serial.println(powerL);
+    // Serial.println(powerR);
+    // Serial.println(powerU);
+    // Serial.println(powerD);
 
     max_power += 0.01;
 
@@ -77,37 +77,64 @@ void Motor::Move(double intended_angle)
     speedU = abs(powerU) / max_power;
     speedD = abs(powerD) / max_power;
 
-    Serial.println(speedU);
-    Serial.println(speedD);
-    Serial.println(speedR);
-    Serial.println(speedL);
+    // Serial.println(speedU);
+    // Serial.println(speedD);
+    // Serial.println(speedR);
+    // Serial.println(speedL);
 
-    int multiplier = 120;
+    int multiplier = motor_power;
     int intspeedU = (int) (speedU * multiplier);
     int intspeedD = (int) (speedD * multiplier);
     int intspeedR = (int) (speedR * multiplier);
     int intspeedL = (int) (speedL * multiplier);
 
-    Serial.print("intspeedU: ");
-    Serial.println(intspeedU);
-    Serial.println("Controls:");
-    Serial.print("U: ");
-    Serial.println(controlU);
-    Serial.print("L: ");
-    Serial.println(controlL);
-    Serial.print("D: ");
-    Serial.println(controlD);
-    Serial.print("R: ");
-    Serial.println(controlR);
+    // Serial.print("intspeedU: ");
+    // Serial.println(intspeedU);
+    // Serial.println("Controls:");
+    // Serial.print("U: ");
+    // Serial.println(controlU);
+    // Serial.print("L: ");
+    // Serial.println(controlL);
+    // Serial.print("D: ");
+    // Serial.println(controlD);
+    // Serial.print("R: ");
+    // Serial.println(controlR);
 
-    analogWrite(pinspeedU, intspeedU);
-    analogWrite(pinspeedD, intspeedD);
-    analogWrite(pinspeedR, intspeedR);
-    analogWrite(pinspeedL, intspeedL);
-    digitalWrite(pincontrolU, controlU);
-    digitalWrite(pincontrolD, controlD);
-    digitalWrite(pincontrolR, controlR);
-    digitalWrite(pincontrolL, controlL);
+    int motor_switch = 0;
+    motor_switch = digitalRead(39);
+    if(motor_switch == HIGH){
+        analogWrite(pinspeedU, intspeedU);
+        analogWrite(pinspeedD, intspeedD);
+        analogWrite(pinspeedR, intspeedR);
+        analogWrite(pinspeedL, intspeedL);
+        digitalWrite(pincontrolU, controlU);
+        digitalWrite(pincontrolD, controlD);
+        digitalWrite(pincontrolR, controlR);
+        digitalWrite(pincontrolL, controlL);
+    }
+    else{
+        Stop();
+    }
+}
 
+void Motor::Stop(){
+    analogWrite(pinspeedU, 0);
+    analogWrite(pinspeedD, 0);
+    analogWrite(pinspeedR, 0);
+    analogWrite(pinspeedL, 0);
+    digitalWrite(pincontrolU, 0);
+    digitalWrite(pincontrolD, 0);
+    digitalWrite(pincontrolR, 0);
+    digitalWrite(pincontrolL, 0);
+}
 
+void Motor::RecordDirection(){
+    int thing = 0;
+    thing = digitalRead(40);
+    if(thing == HIGH){
+        dirAngle = compassSensor.getOrientation();
+    }
+    else{
+
+    }
 }

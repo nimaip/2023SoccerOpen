@@ -67,15 +67,11 @@ int *LineDetection::GetValues()
         lineValues[i] = val;
             
     }
-    // int x = 3;
-    // for(int i = 8*x; i < 8*x + 8; i++){
-    //      Serial.print(i);
-    //      Serial.print(" Line sensor : ");
-    //      Serial.println(lineValues[i]);
+    // for(int i = 0; i < 48; i++){
+    //     Serial.print(i);
+    //     Serial.print(": ");
+    //     Serial.println(lineValues[i]);
     // }
-    // // int y = adc2.analogRead(1);
-    // // Serial.println(y);
-    // Serial.println();
     return lineValues;
 };
 
@@ -90,11 +86,7 @@ int *LineDetection::GetValues()
 
     for (int i = 0; i < 48; i++)
         {
-            Serial.print("Line Value ");
-            Serial.print(i);
-            Serial.print(": ");
-            Serial.println(lineValues[i]);
-            if (lineValues[i] < 300)
+            if (lineValues[i] < 400)
             {
 
                 lineValues[i] = 0;
@@ -108,7 +100,7 @@ int *LineDetection::GetValues()
             }        
         }
 
-    int lowestDot = 2;
+    double lowestDot = 2;
     int firstAngle =  0, secondAngle = 0;
     for (int i = 0; i < 48; i++)
     {
@@ -116,7 +108,12 @@ int *LineDetection::GetValues()
         {
             if (dotProduct[i] != 0 && dotProduct[j] != 0)
             {
-                int dot = (sinValues[i] * sinValues[j]) + (cosValues[i] * cosValues[j]);
+                double dot = (sinValues[i] * sinValues[j]) + (cosValues[i] * cosValues[j]);
+                // Serial.print(i);
+                // Serial.print(" ");
+                // Serial.print(j);
+                // Serial.print(" ");
+                // Serial.println(dot);
                 if (dot < lowestDot)
                 {
                     lowestDot = dot;
@@ -127,24 +124,42 @@ int *LineDetection::GetValues()
         }
     }
 
+    // Serial.print("First Angle: ");
+    // Serial.println(firstAngle);
+    // Serial.print("Second Angle: ");
+    // Serial.println(secondAngle);
+
     totalCos = cosValues[firstAngle] + cosValues[secondAngle];
     totalSin = sinValues[firstAngle] + sinValues[secondAngle];
                 
     anglebisc = toDegrees(atan2(totalCos, totalSin));
-    int sensorAngle = abs(sensorAngles[firstAngle]-sensorAngles[secondAngle]);
-       if (sensorAngle > 180)
-    {
-        sensorAngle = 360 - sensorAngle;
-    }
+    // sensorAngle = abs(sensorAngles[firstAngle]-sensorAngles[secondAngle]);
+    anglebisc += 270;
+    anglebisc *= -1;
+    anglebisc += 450;
+    if(anglebisc > 360)
+        anglebisc -= 360;
+    //    if (sensorAngle > 180)
+    // {
+    //     sensorAngle = 360 - sensorAngle;
+    // }
 
-    if (totalCos == 0 && totalSin == 0)
-    {
-        anglebisc = initialAngle;
-    }
-    if (anglebisc < 0)
-    {
+    // if (totalCos == 0 && totalSin == 0)
+    // {
+    //     anglebisc = initialAngle;
+    // }
+    // if (anglebisc < 0)
+    // {
 
-        anglebisc = anglebisc + 360;
-    }
-    return anglebisc;   
+    //     anglebisc = anglebisc + 360;
+    // }
+    return anglebisc;   // returns direction the line is in
 }
+
+double LineDetection::Process(){
+    anglebisc += 180;
+    if(anglebisc > 360){
+        anglebisc -= 360;
+    }
+    return anglebisc;
+};

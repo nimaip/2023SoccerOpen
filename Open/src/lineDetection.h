@@ -7,8 +7,10 @@ class LineDetection{
         LineDetection();
         int *GetValues();
         double GetAngle();
+        double Process();
         double dotProduct[48];
         int anglebisc;
+        bool linepresent;
      
     private:
         int *lineValues;
@@ -19,7 +21,6 @@ class LineDetection{
         MCP3008 adc5;
         MCP3008 adc6;
         bool negativeLow;
-        bool linepresent;
         
         double sensorAngles[48];
         double sinValues[48];

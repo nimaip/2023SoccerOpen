@@ -1,17 +1,19 @@
 #include <Arduino.h>
 #include <trig.h>
-
+#include <compassSensor.h>
 
 class Motor
 {
 
 public:
     Motor();
-    void Move(double intended_angle);
+    void Move(double intended_angle, int motor_power);
+    void Stop();
     double correction;
     double robot_base_angle = 45;
-    
-
+    CompassSensor compassSensor;
+    void RecordDirection();
+    int dirAngle;
 
 private:
     double max_power;
@@ -37,4 +39,5 @@ private:
     int pincontrolD;
     int pincontrolL;
     int pincontrolR;
+
 };
