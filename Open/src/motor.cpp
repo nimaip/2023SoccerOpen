@@ -128,13 +128,13 @@ void Motor::Stop(){
     digitalWrite(pincontrolL, 0);
 }
 
-void Motor::RecordDirection(){
-    int thing = 0;
-    thing = digitalRead(40);
-    if(thing == HIGH){
-        dirAngle = compassSensor.getOrientation();
-    }
-    else{
+// void Motor::RecordDirection(){
+//     int thing = 0;
+//     thing = digitalRead(40);
+//     if(thing == HIGH){
+//         dirAngle = compassSensor.getOrientation();
+//     }
+//     else{
 
-    }
-}
+//     }
+// }
