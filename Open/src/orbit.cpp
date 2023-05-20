@@ -8,7 +8,7 @@ double Orbit::CalculateRobotAngle(double ballAngle, int goalAngle)
 {
 
     if(ballAngle < 90 || ballAngle > 270){
-        if(ballAngle < 10 || ballAngle > 350){
+        if(ballAngle < 20 || ballAngle > 340){
             return ballAngle;
         }
         else if(ballAngle < 90){

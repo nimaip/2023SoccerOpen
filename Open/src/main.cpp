@@ -5,25 +5,26 @@
 #include <orbit.h>
 
 LineDetection lineDetection;
-Motor motor;
+// Motor motor;
 Cam cam;
 Orbit orbit;
 
 void setup() {
   Serial.begin(9600);
-  Serial2.begin(19200);
-  Serial.print(" ");
-  delay(500);
 }
 
 void loop() {
-  Serial.println("ha");
-  motor.Move(0, 80);
+  Serial.println("hi");
+  delay(200);
+  // motor.Move(0, 80, 0);
+  // motor.RecordDirection();
+  // int angle = motor.dirAngle;
+  // Serial.println(angle);
   // cam.CamCalc();
   // double ballAngle = cam.buff;
   // double robotAngle = orbit.CalculateRobotAngle(ballAngle, 0);
   // Serial.println(robotAngle);
-  // motor.Move(robotAngle, 80);
+  // motor.Move(robotAngle, 120);
   // int main_switch = 0;
   // main_switch = digitalRead(36);
 
@@ -51,5 +52,5 @@ void loop() {
   // }
 
   // Serial.print(Serial2.available());
-  delay(200);
+  // delay(200);
 }

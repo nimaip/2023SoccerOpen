@@ -28,7 +28,11 @@ Motor::Motor()
     max_power = 0;
 };
 
-void Motor::Move(double intended_angle, int motor_power)
+void Motor::Move(double intended_angle, int motor_power){
+    Move(intended_angle, motor_power, 0);
+}
+
+void Motor::Move(double intended_angle, int motor_power, double correction)
 {
     // double intended_angle = 0; // intended angle for robot to move
     // robot_base_angle is the angle shift required to work in the reference frame 
@@ -44,10 +48,10 @@ void Motor::Move(double intended_angle, int motor_power)
     // Serial.println(intended_angle_rad);
     
     // powerU, powerD, powerL, powerR are the four sides of the square
-    powerL = sin(intended_angle_rad);
-    powerR = -1 * sin(intended_angle_rad);
-    powerU = cos(intended_angle_rad);
-    powerD = -1 * cos(intended_angle_rad);
+    powerL = sin(intended_angle_rad) + correction;
+    powerR = -1 * sin(intended_angle_rad) + correction;
+    powerU = cos(intended_angle_rad) + correction;
+    powerD = -1 * cos(intended_angle_rad) + correction;
 
     // find max_power among motors to scale
     max_power = max(max(abs(powerU), abs(powerD)), max(abs(powerL), abs(powerR)));
@@ -88,17 +92,17 @@ void Motor::Move(double intended_angle, int motor_power)
     int intspeedR = (int) (speedR * multiplier);
     int intspeedL = (int) (speedL * multiplier);
 
-    // Serial.print("intspeedU: ");
-    // Serial.println(intspeedU);
-    // Serial.println("Controls:");
-    // Serial.print("U: ");
-    // Serial.println(controlU);
-    // Serial.print("L: ");
-    // Serial.println(controlL);
-    // Serial.print("D: ");
-    // Serial.println(controlD);
-    // Serial.print("R: ");
-    // Serial.println(controlR);
+    Serial.print("intspeedU: ");
+    Serial.println(intspeedU);
+    Serial.println("Controls:");
+    Serial.print("U: ");
+    Serial.println(controlU);
+    Serial.print("L: ");
+    Serial.println(controlL);
+    Serial.print("D: ");
+    Serial.println(controlD);
+    Serial.print("R: ");
+    Serial.println(controlR);
 
     int motor_switch = 0;
     motor_switch = digitalRead(39);
@@ -128,13 +132,22 @@ void Motor::Stop(){
     digitalWrite(pincontrolL, 0);
 }
 
-// void Motor::RecordDirection(){
-//     int thing = 0;
-//     thing = digitalRead(40);
-//     if(thing == HIGH){
-//         dirAngle = compassSensor.getOrientation();
-//     }
-//     else{
+void Motor::RecordDirection(){
+    if(digitalRead(40) == HIGH){ // compass sensor switch
+        dirAngle = compassSensor.getOrientation();
+    }
+}
 
-//     }
-// }
+double Motor::FindCorrection(){
+    int angle = compassSensor.getOrientation();
+    double multiplier = 1; // how much rotation there is
+    double correction = sin(angle - dirAngle) * multiplier;
+    return correction;
+}
+
+double Motor::FindCorrectionOffense(double goalAngle){
+    int angle = compassSensor.getOrientation();
+    double multiplier = 1; // how much rotation there is
+    double correction = sin(angle - goalAngle) * multiplier;
+    return correction;
+}

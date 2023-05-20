@@ -25,6 +25,7 @@ double Cam::CamCalc()
     for (int i = 0; i < Serial2.available(); i++)
     {
       read = Serial2.read();
+      Serial.println(buffer.c_str());
       if (read == 'a')
       {
         dist2 = strtod(buffer.c_str(), NULL);

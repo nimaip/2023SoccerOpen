@@ -157,6 +157,9 @@ int *LineDetection::GetValues()
 }
 
 double LineDetection::Process(){
+    // MAKE SURE YOU CALL THE PREVIOUS METHOD OTHERWISE NOTHING HAPPENS
+    GetAngle();
+    
     anglebisc += 180;
     if(anglebisc > 360){
         anglebisc -= 360;

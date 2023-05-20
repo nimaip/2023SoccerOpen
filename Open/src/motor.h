@@ -1,6 +1,6 @@
 #include <Arduino.h>
 #include <trig.h>
-// #include <compassSensor.h>
+#include <compassSensor.h>
 
 class Motor
 {
@@ -8,11 +8,13 @@ class Motor
 public:
     Motor();
     void Move(double intended_angle, int motor_power);
+    void Move(double intended_angle, int motor_power, double correction);
     void Stop();
-    double correction;
-    double robot_base_angle = 45;
-    // CompassSensor compassSensor;
     void RecordDirection();
+    double FindCorrection();
+    double FindCorrectionOffense(double goalAngle);
+    double robot_base_angle = 45;
+    CompassSensor compassSensor;
     int dirAngle;
 
 private:
