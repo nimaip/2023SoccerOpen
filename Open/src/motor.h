@@ -14,7 +14,7 @@ public:
     double FindCorrection();
     double FindCorrectionOffense(double goalAngle);
     double robot_base_angle = 45;
-    CompassSensor compassSensor;
+    // CompassSensor compassSensor;
     int dirAngle;
 
 private:

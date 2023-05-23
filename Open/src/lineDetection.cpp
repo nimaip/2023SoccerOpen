@@ -67,11 +67,11 @@ int *LineDetection::GetValues()
         lineValues[i] = val;
             
     }
-    // for(int i = 0; i < 48; i++){
-    //     Serial.print(i);
-    //     Serial.print(": ");
-    //     Serial.println(lineValues[i]);
-    // }
+    for(int i = 0; i < 48; i++){
+        Serial.print(i);
+        Serial.print(": ");
+        Serial.println(lineValues[i]);
+    }
     return lineValues;
 };
 
@@ -86,7 +86,7 @@ int *LineDetection::GetValues()
 
     for (int i = 0; i < 48; i++)
         {
-            if (lineValues[i] < 400)
+            if (lineValues[i] < 400 || lineValues[i] > 1013)
             {
 
                 lineValues[i] = 0;

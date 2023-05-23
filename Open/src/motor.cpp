@@ -7,14 +7,14 @@
 Motor::Motor()
 {
     // corresponding pin values on teensy
-    pinspeedU = 5;
-    pinspeedD = 3;
-    pinspeedL = 2;
-    pinspeedR = 24;
-    pincontrolU = 0;
-    pincontrolD = 32;
-    pincontrolL = 25;
-    pincontrolR = 1;
+    pinspeedL = 5;
+    pinspeedR = 3;
+    pinspeedD = 2;
+    pinspeedU = 24;
+    pincontrolL = 0;
+    pincontrolR = 32;
+    pincontrolD = 25;
+    pincontrolU = 1;
     
     
     pinMode(pinspeedU, OUTPUT);
@@ -28,9 +28,9 @@ Motor::Motor()
     max_power = 0;
 };
 
-void Motor::Move(double intended_angle, int motor_power){
-    Move(intended_angle, motor_power, 0);
-}
+// void Motor::Move(double intended_angle, int motor_power){
+//     Move(intended_angle, motor_power, 0);
+// }
 
 void Motor::Move(double intended_angle, int motor_power, double correction)
 {
@@ -65,9 +65,9 @@ void Motor::Move(double intended_angle, int motor_power, double correction)
     // powerD += correction; 
 
     controlL = powerL > 0 ? LOW : HIGH;
-    controlR = powerR < 0 ? LOW : HIGH;
-    controlU = powerU > 0 ? LOW : HIGH;
-    controlD = powerD < 0 ? LOW : HIGH;
+    controlR = powerR > 0 ? LOW : HIGH;
+    controlU = powerU < 0 ? LOW : HIGH;
+    controlD = powerD > 0 ? LOW : HIGH;
     // Serial.println("Powers:");
     // Serial.println(powerL);
     // Serial.println(powerR);
@@ -92,17 +92,17 @@ void Motor::Move(double intended_angle, int motor_power, double correction)
     int intspeedR = (int) (speedR * multiplier);
     int intspeedL = (int) (speedL * multiplier);
 
-    Serial.print("intspeedU: ");
-    Serial.println(intspeedU);
-    Serial.println("Controls:");
-    Serial.print("U: ");
-    Serial.println(controlU);
-    Serial.print("L: ");
-    Serial.println(controlL);
-    Serial.print("D: ");
-    Serial.println(controlD);
-    Serial.print("R: ");
-    Serial.println(controlR);
+    // Serial.print("intspeedU: ");
+    // Serial.println(intspeedU);
+    // Serial.println("Controls:");
+    // Serial.print("U: ");
+    // Serial.println(controlU);
+    // Serial.print("L: ");
+    // Serial.println(controlL);
+    // Serial.print("D: ");
+    // Serial.println(controlD);
+    // Serial.print("R: ");
+    // Serial.println(controlR);
 
     int motor_switch = 0;
     motor_switch = digitalRead(39);
@@ -132,22 +132,22 @@ void Motor::Stop(){
     digitalWrite(pincontrolL, 0);
 }
 
-void Motor::RecordDirection(){
-    if(digitalRead(40) == HIGH){ // compass sensor switch
-        dirAngle = compassSensor.getOrientation();
-    }
-}
+// void Motor::RecordDirection(){
+//     if(digitalRead(40) == HIGH){ // compass sensor switch
+//         dirAngle = compassSensor.getOrientation();
+//     }
+// }
 
-double Motor::FindCorrection(){
-    int angle = compassSensor.getOrientation();
-    double multiplier = 1; // how much rotation there is
-    double correction = sin(angle - dirAngle) * multiplier;
-    return correction;
-}
+// double Motor::FindCorrection(){
+//     int angle = compassSensor.getOrientation();
+//     double multiplier = 1; // how much rotation there is
+//     double correction = sin(angle - dirAngle) * multiplier;
+//     return correction;
+// }
 
-double Motor::FindCorrectionOffense(double goalAngle){
-    int angle = compassSensor.getOrientation();
-    double multiplier = 1; // how much rotation there is
-    double correction = sin(angle - goalAngle) * multiplier;
-    return correction;
-}
+// double Motor::FindCorrectionOffense(double goalAngle){
+//     int angle = compassSensor.getOrientation();
+//     double multiplier = 1; // how much rotation there is
+//     double correction = sin(angle - goalAngle) * multiplier;
+//     return correction;
+// }
