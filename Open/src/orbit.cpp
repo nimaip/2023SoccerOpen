@@ -51,7 +51,16 @@ double Orbit::CalculateRobotAngle(double ballAngle, int goalAngle)
 }
 
 double Orbit::CalculateRobotAngle2(double ballAngle, double goalAngle){
+    
+    
     // double dampenVal = min(1, 0.02 * exp(5.5 * highestValue));
+
+    if(ballAngle == -5 || ballAngle == 0){
+        ballAngle = validBallAngle;
+    }
+    else{
+        validBallAngle = ballAngle;
+    }
 
     double newballAngle = ballAngle > 180 ? (360 - ballAngle) : ballAngle;
     // Serial.print("ballangle : ");
@@ -67,10 +76,10 @@ double Orbit::CalculateRobotAngle2(double ballAngle, double goalAngle){
 
     multiplier = 0.05 * (goalAngle) + 1;
     double orbitvalue = min(90, 0.08 * exp(0.2 * newballAngle));
-    orbitvalue = orbitvalue+180;
-    if(orbitvalue > 360){
-        orbitvalue -=360;
-    }
+    // orbitvalue = orbitvalue+180;
+    // if(orbitvalue > 360){
+    //     orbitvalue -=360;
+    // }
     // Serial.print("dampen : ");
     // Serial.println(dampenVal);
     // Serial.print("orbit : ");

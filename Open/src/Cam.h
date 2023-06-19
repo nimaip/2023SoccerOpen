@@ -8,16 +8,13 @@ class Cam {
         Cam();
         int *angleAverage;
         int *angle2Average;
-        double dist;
-        double buff;
-        double dist2;
-        double buff2;
+        double ball;
+        double yellowGoal;
+        double blueGoal;
         double camVal;
-        double camAverage();
-        int *distAverage;
-        int *dist2Average;
-        double camSend(String role);
+        double validBallAngle;
         double CamCalc();
+        double FilterAngle(double angle, double validAngle);
         std::string buffer;
         char read;
     private:

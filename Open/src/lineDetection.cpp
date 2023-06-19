@@ -67,11 +67,11 @@ int *LineDetection::GetValues()
         lineValues[i] = val;
             
     }
-    for(int i = 0; i < 48; i++){
-        Serial.print(i);
-        Serial.print(": ");
-        Serial.println(lineValues[i]);
-    }
+    // for(int i = 0; i < 48; i++){
+    //     Serial.print(i);
+    //     Serial.print(": ");
+    //     Serial.println(lineValues[i]);
+    // }
     return lineValues;
 };
 
@@ -133,36 +133,21 @@ int *LineDetection::GetValues()
     totalSin = sinValues[firstAngle] + sinValues[secondAngle];
                 
     anglebisc = toDegrees(atan2(totalCos, totalSin));
-    // sensorAngle = abs(sensorAngles[firstAngle]-sensorAngles[secondAngle]);
-    anglebisc += 270;
-    anglebisc *= -1;
-    anglebisc += 450;
-    if(anglebisc > 360)
-        anglebisc -= 360;
-    //    if (sensorAngle > 180)
-    // {
-    //     sensorAngle = 360 - sensorAngle;
-    // }
 
-    // if (totalCos == 0 && totalSin == 0)
-    // {
-    //     anglebisc = initialAngle;
-    // }
-    // if (anglebisc < 0)
-    // {
 
-    //     anglebisc = anglebisc + 360;
-    // }
+    if(anglebisc < 0)
+        anglebisc = 360+anglebisc;
+
     return anglebisc;   // returns direction the line is in
 }
 
 double LineDetection::Process(){
     // MAKE SURE YOU CALL THE PREVIOUS METHOD OTHERWISE NOTHING HAPPENS
     GetAngle();
-    
-    anglebisc += 180;
-    if(anglebisc > 360){
-        anglebisc -= 360;
+    avoidanceAngle = anglebisc;
+    avoidanceAngle += 180;
+    if(avoidanceAngle > 360){
+        avoidanceAngle = avoidanceAngle-360;
     }
-    return anglebisc;
+    return avoidanceAngle;
 };

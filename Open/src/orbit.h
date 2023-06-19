@@ -3,7 +3,7 @@ class Orbit {
 
     public: 
         Orbit();
-        double ballAngle;
+        double validBallAngle;
         double highestValue; // highest of the sensor values
         double robotAngle;
         bool capture = false;

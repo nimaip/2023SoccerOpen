@@ -7,114 +7,114 @@
 Motor::Motor()
 {
     // corresponding pin values on teensy
-    pinspeedL = 5;
-    pinspeedR = 3;
-    pinspeedD = 2;
-    pinspeedU = 24;
-    pincontrolL = 0;
-    pincontrolR = 32;
-    pincontrolD = 25;
-    pincontrolU = 1;
+    pinspeedRL = 5;
+    pinspeedRR = 3;
+    pinspeedFL = 2;
+    pinspeedFR = 24;
+    pincontrolRL = 32;
+    pincontrolRR = 0;
+    pincontrolFL = 25;
+    pincontrolFR = 1;
+
     
     
-    pinMode(pinspeedU, OUTPUT);
-    pinMode(pinspeedD, OUTPUT);
-    pinMode(pinspeedL, OUTPUT);
-    pinMode(pinspeedR, OUTPUT);
-    pinMode(pincontrolU, OUTPUT);
-    pinMode(pincontrolD, OUTPUT);
-    pinMode(pincontrolL, OUTPUT);
-    pinMode(pincontrolR, OUTPUT);
+    pinMode(pinspeedFR, OUTPUT);
+    pinMode(pinspeedFL, OUTPUT);
+    pinMode(pinspeedRR, OUTPUT);
+    pinMode(pinspeedRL, OUTPUT);
+    pinMode(pincontrolFL, OUTPUT);
+    pinMode(pincontrolFR, OUTPUT);
+    pinMode(pincontrolRR, OUTPUT);
+    pinMode(pincontrolRL, OUTPUT);
     max_power = 0;
 };
 
-// void Motor::Move(double intended_angle, int motor_power){
-//     Move(intended_angle, motor_power, 0);
-// }
-
-void Motor::Move(double intended_angle, int motor_power, double correction)
-{
-    // double intended_angle = 0; // intended angle for robot to move
-    // robot_base_angle is the angle shift required to work in the reference frame 
-    // of a horizontal/vertical square
-    intended_angle = intended_angle - robot_base_angle + 360;
-    if(intended_angle >= 360){
-        intended_angle -= 360;
+void Motor::Process(double intended_angle, double motor_power, bool linePresent, double lineAngle){
+    if(linePresent == true){
+        Move(lineAngle, motor_power);
     }
-    // Serial.print("Intended Angle: " );
-    // Serial.println(intended_angle);
-    double intended_angle_rad = toRadians(intended_angle);
-    // Serial.print("Intended Angle (Radians): ");
-    // Serial.println(intended_angle_rad);
-    
-    // powerU, powerD, powerL, powerR are the four sides of the square
-    powerL = sin(intended_angle_rad) + correction;
-    powerR = -1 * sin(intended_angle_rad) + correction;
-    powerU = cos(intended_angle_rad) + correction;
-    powerD = -1 * cos(intended_angle_rad) + correction;
+    else{
+        Move(intended_angle, motor_power);
+    }
+}
 
+void Motor::Move(double intended_angle, double motor_power)
+{
+    speedRR = 0;
+    speedRL = 0;
+    speedFL = 0;
+    speedFR = 0;
+    controlRR = 0;
+    controlFR = 0;
+    controlFL = 0;
+    controlRL = 0;
+
+    powerFR = sin(toRadians(intended_angle - 45));
+    powerRR = sin(toRadians(intended_angle - 135));
+    powerRL = sin(toRadians(intended_angle - 225));
+    powerFL = sin(toRadians(intended_angle - 315));
     // find max_power among motors to scale
-    max_power = max(max(abs(powerU), abs(powerD)), max(abs(powerL), abs(powerR)));
+    max_power = max(max(abs(powerFR), abs(powerFL)), max(abs(powerRR), abs(powerRL)));
     // Serial.print("Max Power: ");
     // Serial.println(max_power);
 
+    FindCorrection(compassSensor.getOrientation());
     // add correction to account for rotation needed
-    // powerL += correction;
-    // powerR += correction;
-    // powerU += correction;
-    // powerD += correction; 
 
-    controlL = powerL > 0 ? LOW : HIGH;
-    controlR = powerR > 0 ? LOW : HIGH;
-    controlU = powerU < 0 ? LOW : HIGH;
-    controlD = powerD > 0 ? LOW : HIGH;
-    // Serial.println("Powers:");
-    // Serial.println(powerL);
-    // Serial.println(powerR);
-    // Serial.println(powerU);
-    // Serial.println(powerD);
 
-    max_power += 0.01;
 
-    speedL = abs(powerL) / max_power;
-    speedR = abs(powerR) / max_power;
-    speedU = abs(powerU) / max_power;
-    speedD = abs(powerD) / max_power;
+  
 
-    // Serial.println(speedU);
-    // Serial.println(speedD);
-    // Serial.println(speedR);
-    // Serial.println(speedL);
 
-    int multiplier = motor_power;
-    int intspeedU = (int) (speedU * multiplier);
-    int intspeedD = (int) (speedD * multiplier);
-    int intspeedR = (int) (speedR * multiplier);
-    int intspeedL = (int) (speedL * multiplier);
 
-    // Serial.print("intspeedU: ");
-    // Serial.println(intspeedU);
-    // Serial.println("Controls:");
-    // Serial.print("U: ");
-    // Serial.println(controlU);
-    // Serial.print("L: ");
-    // Serial.println(controlL);
-    // Serial.print("D: ");
-    // Serial.println(controlD);
-    // Serial.print("R: ");
-    // Serial.println(controlR);
+
+    // max_power += 0.01;
+    // Serial.println(powerFR);
+    // Serial.println(powerFL);
+    // Serial.println(powerRR);
+    // Serial.println(powerRL);
+    powerFR = powerFR / max_power;
+    powerFL = powerFL / max_power;
+    powerRR = powerRR / max_power;
+    powerRL = powerRL / max_power;
+
+
+    powerFR += correction;
+    powerFL += correction;
+    powerRR += correction;
+    powerRL += correction; 
+
+    controlRL = powerRL < 0 ? LOW : HIGH;
+    controlRR = powerRR > 0 ? LOW : HIGH;
+    controlFL = powerFL < 0 ? LOW : HIGH;
+    controlFR = powerFR > 0 ? LOW : HIGH;
+
+    max_power = max(max(abs(powerFR), abs(powerFL)), max(abs(powerRR), abs(powerRL)));
+
+    speedFR = abs(powerFR) / max_power;
+    speedFL = abs(powerFL) / max_power;
+    speedRR = abs(powerRR) / max_power;
+    speedRL = abs(powerRL) / max_power;
+
+
+    int multiplier = 255;
+    int intspeedFR = (int) ((speedFR * multiplier)*motor_power);
+    int intspeedFL = (int) ((speedFL * multiplier)*motor_power);
+    int intspeedRR = (int) ((speedRR * multiplier)*motor_power);
+    int intspeedRL = (int) ((speedRL * multiplier)*motor_power);
+
 
     int motor_switch = 0;
     motor_switch = digitalRead(39);
     if(motor_switch == HIGH){
-        analogWrite(pinspeedU, intspeedU);
-        analogWrite(pinspeedD, intspeedD);
-        analogWrite(pinspeedR, intspeedR);
-        analogWrite(pinspeedL, intspeedL);
-        digitalWrite(pincontrolU, controlU);
-        digitalWrite(pincontrolD, controlD);
-        digitalWrite(pincontrolR, controlR);
-        digitalWrite(pincontrolL, controlL);
+        analogWrite(pinspeedFR, intspeedFR);
+        analogWrite(pinspeedFL, intspeedFL);
+        analogWrite(pinspeedRR, intspeedRR);
+        analogWrite(pinspeedRL, intspeedRL);
+        digitalWrite(pincontrolFL, controlFL);
+        digitalWrite(pincontrolFR, controlFR);
+        digitalWrite(pincontrolRR, controlRR);
+        digitalWrite(pincontrolRL, controlRL);
     }
     else{
         Stop();
@@ -122,32 +122,68 @@ void Motor::Move(double intended_angle, int motor_power, double correction)
 }
 
 void Motor::Stop(){
-    analogWrite(pinspeedU, 0);
-    analogWrite(pinspeedD, 0);
-    analogWrite(pinspeedR, 0);
-    analogWrite(pinspeedL, 0);
-    digitalWrite(pincontrolU, 0);
-    digitalWrite(pincontrolD, 0);
-    digitalWrite(pincontrolR, 0);
-    digitalWrite(pincontrolL, 0);
+    analogWrite(pinspeedFR, 0);
+    analogWrite(pinspeedFL, 0);
+    analogWrite(pinspeedRL, 0);
+    analogWrite(pinspeedRR, 0);
+}
+void Motor::RecordDirection(){
+    if(digitalRead(36) == LOW){
+        initialOrientation = compassSensor.getOrientation();
+    }
 }
 
-// void Motor::RecordDirection(){
-//     if(digitalRead(40) == HIGH){ // compass sensor switch
-//         dirAngle = compassSensor.getOrientation();
-//     }
-// }
 
-// double Motor::FindCorrection(){
-//     int angle = compassSensor.getOrientation();
-//     double multiplier = 1; // how much rotation there is
-//     double correction = sin(angle - dirAngle) * multiplier;
-//     return correction;
-// }
 
-// double Motor::FindCorrectionOffense(double goalAngle){
-//     int angle = compassSensor.getOrientation();
-//     double multiplier = 1; // how much rotation there is
-//     double correction = sin(angle - goalAngle) * multiplier;
-//     return correction;
-// }
+double Motor::FindCorrection(double orientation){
+    
+
+    orientationVal = abs(orientation - initialOrientation);
+
+    // Serial.println(orientationVal);
+    if (orientationVal > 180)
+    {
+        orientationVal = 360 - orientationVal;
+    }
+    if (initialOrientation <180  && orientation > 180)
+    {
+        orientation = -1*(360-orientation);
+    }
+    else if (initialOrientation > 180 && orientation < 180)
+    {
+        orientation = (orientation + 360);
+    }
+    if (orientation < initialOrientation)
+    {
+        orientationVal = -1*orientationVal;
+    }
+
+
+    correction = -1 * (sin(toRadians(orientationVal)));
+
+    if (orientationVal > -8 && orientationVal < 0)
+    {
+        correction = 0;
+    }
+    else if (orientationVal < 8 && orientationVal > 0)
+    {
+        correction = 0;
+    }
+    else if (orientationVal > 90)
+    {
+        correction = -1;
+    }
+    else if (orientationVal < -90)
+    {
+        correction = 1;
+    }
+
+    
+    
+
+    Serial.println("Correction : ");
+    Serial.println(correction);
+    return correction;
+}
+
+

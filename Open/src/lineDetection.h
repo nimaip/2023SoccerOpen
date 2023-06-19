@@ -11,6 +11,7 @@ class LineDetection{
         double dotProduct[48];
         int anglebisc;
         bool linepresent;
+        int avoidanceAngle;
      
     private:
         int *lineValues;

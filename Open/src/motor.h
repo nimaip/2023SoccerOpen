@@ -7,39 +7,40 @@ class Motor
 
 public:
     Motor();
-    void Move(double intended_angle, int motor_power);
-    void Move(double intended_angle, int motor_power, double correction);
+    void Move(double intended_angle, double motor_power);
+    void Process(double intended_angle, double motor_power, bool linePresent, double lineAngle);
     void Stop();
     void RecordDirection();
-    double FindCorrection();
-    double FindCorrectionOffense(double goalAngle);
-    double robot_base_angle = 45;
-    // CompassSensor compassSensor;
+    double FindCorrection(double orientation);
+    CompassSensor compassSensor;
     int dirAngle;
+    double correction;
 
 private:
+    double initialOrientation = 0;
     double max_power;
-    double powerU;
-    double powerD;
-    double powerL;
-    double powerR;
+    double powerFR;
+    double powerFL;
+    double powerRR;
+    double powerRL;
 
-    double speedU;
-    double speedD;
-    double speedL;
-    double speedR;
-    int controlU;
-    int controlD;
-    int controlL;
-    int controlR;
+    double speedFR;
+    double speedFL;
+    double speedRR;
+    double speedRL;
+    int controlFR;
+    int controlFL;
+    int controlRR;
+    int controlRL;
 
-    int pinspeedU;
-    int pinspeedD;
-    int pinspeedL;
-    int pinspeedR;
-    int pincontrolU;
-    int pincontrolD;
-    int pincontrolL;
-    int pincontrolR;
+    int pinspeedFR;
+    int pinspeedFL;
+    int pinspeedRR;
+    int pinspeedRL;
+    int pincontrolFR;
+    int pincontrolFL;
+    int pincontrolRR;
+    int pincontrolRL;
 
+    double orientationVal;
 };
