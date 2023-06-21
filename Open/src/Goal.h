@@ -2,9 +2,9 @@
 class Goal {
     public:
         Goal();
-        double blue_goal_angle;
-        double yellow_goal_angle;
-        void Kick(bool capture);
+        double Process(double ball, int Orientation, double goalOrientation, int initialOrientation);
+        double goalAngle;
+        void Kick(double goalDist,bool capture, double correction);
     private:
         int kickTimer;
         int kickActivate;

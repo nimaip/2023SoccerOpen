@@ -1,3 +1,6 @@
+#ifndef DEFENSE_H
+#define DEFENSE_H
+
 #include <Arduino.h>
 #include <string>
 #include <Adafruit_I2CDevice.h>
@@ -10,9 +13,24 @@ class Defense
 {
 public:
     Defense();
-    double defense(double ballAngle, double goalAngle);
+    void defense(double ballAngle,int goalAngle, LineDetection& lineDetection, Motor& motor);
+    double defenseAngle;
+    bool stop;
 
 private:
   
-
+  double ballAngleX;
+  double ballAngleY;
+  double goalAngleX;
+  double goalAngleY;
+  double vectorX;
+  double vectorY;
+  double dotProduct;
+  double denominator;
+  double robotAngleX;
+  double robotAngleY;
+  double angleDiff;
+  double lineAngle;
 };
+
+#endif

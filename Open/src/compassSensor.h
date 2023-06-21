@@ -2,6 +2,8 @@
 #include <Adafruit_Sensor.h>
 #include <Adafruit_BNO055.h>
 #include <utility/imumaths.h>
+#ifndef COMPASSSENSOR_H
+#define COMPASSSENSOR_H
 class CompassSensor {
 
     public: 
@@ -16,3 +18,5 @@ class CompassSensor {
     void displaySensorDetails();
     void displaySensorStatus();
 };
+
+#endif

@@ -4,57 +4,12 @@ Orbit::Orbit(){
 
 }
 
-double Orbit::CalculateRobotAngle(double ballAngle, int goalAngle)
-{
-    ballAngle -= goalAngle;
-    if(ballAngle < 0){
-        ballAngle += 360;
-    }
-    if(ballAngle < 90 || ballAngle > 270){
-        int thing = 20;
-        if(ballAngle < thing || ballAngle > 360 - thing){
-            return ballAngle;
-        }
-        else if(ballAngle < 90){
-            return 135;
-        }
-        else{
-            return 225;
-        }
-    }
-    else{
-        if(ballAngle < 140 || ballAngle > 220){
-            return 180;
-        }
-        else if(ballAngle >= 140 && ballAngle < 180){
-            return 270;
-        }
-        else{
-            return 90;
-        }
-    }
-
-    // double newballAngle = ballAngle > 180 ? (360 - ballAngle) : ballAngle;
-
-    // if (goalAngle == -5) {
-    //     goalAngle = 0;
-    // }
-    // goalAngle = goalAngle > 180 ? (360 - goalAngle) : goalAngle; 
-
-    // double dampenVal = min(1, 0.02 * exp(5.5 * highestValue));
-    // double orbitvalue = min(90, 0.08 * exp(0.2 * newballAngle));
-
-    // robotAngle = ballAngle + (ballAngle > 180 ? -1 : 1) * (orbitvalue * dampenVal);
-    // Serial.print("robotAngle : ");
-    // Serial.println(robotAngle);
-    // return robotAngle;
-}
-
-double Orbit::CalculateRobotAngle2(double ballAngle, double goalAngle){
+double Orbit::CalculateRobotAngle2(double ballAngle, double goalAngle, double distance){
     
     
-    // double dampenVal = min(1, 0.02 * exp(5.5 * highestValue));
-
+    double dampenVal = min(1, 4 * exp(-0.1 * distance));
+    Serial.print("dampen: ");
+    Serial.println(dampenVal);
     if(ballAngle == -5 || ballAngle == 0){
         ballAngle = validBallAngle;
     }
@@ -76,17 +31,11 @@ double Orbit::CalculateRobotAngle2(double ballAngle, double goalAngle){
 
     multiplier = 0.05 * (goalAngle) + 1;
     double orbitvalue = min(90, 0.08 * exp(0.2 * newballAngle));
-    // orbitvalue = orbitvalue+180;
-    // if(orbitvalue > 360){
-    //     orbitvalue -=360;
-    // }
-    // Serial.print("dampen : ");
-    // Serial.println(dampenVal);
-    // Serial.print("orbit : ");
-    // Serial.println(orbitvalue);
+    orbitvalue = orbitvalue*dampenVal;
+
     robotAngle = ballAngle + (ballAngle > 180 ? -1 : 1) * (orbitvalue);
-    // Serial.print("robotAngle : ");
-    // Serial.println(robotAngle);
+    Serial.print("robotAngle : ");
+    Serial.println(robotAngle);
     if(robotAngle > 360){
         robotAngle -=360;
     }

@@ -5,49 +5,84 @@ Defense::Defense()
 
 }
 
-double Defense::defense(double ballAngle, double goalAngle)
+void Defense::defense(double ballAngle,int goalAngle, LineDetection& lineDetection, Motor& motor)
 {
-    // preprocessing 
-    if(goalAngle ==-5){
-        goalAngle = 180;
+    Serial.println(lineDetection.Chord());
+    if(lineDetection.Chord() <0.8){
+        lineDetection.avoidanceAngle = -1;
     }
-    if(ballAngle == -5){
-        ballAngle = 0;
+    angleDiff = abs(ballAngle - goalAngle);
+    if (angleDiff > 180)
+    {
+        angleDiff = 360 - angleDiff;
     }
-    if(goalAngle >360){
-        goalAngle = goalAngle-360;
-    }
-
-    // calculate direction robot should move in 
-    double robotAngle = -1;
-    double diff = abs(ballAngle - goalAngle);
-    double restWindow = 30; 
-    // if the robot is within restWindow degrees of the line then it won't move
-    if(diff < 180 - restWindow){
-        robotAngle = (ballAngle + goalAngle)/2;
-    }
-    if(diff > 180 + restWindow){
-        robotAngle = (ballAngle + goalAngle)/2;
-        if(robotAngle >= 360){
-            robotAngle -= 360;
-        }
-    }
-
-    if(robotAngle == -1){
-        // don't move
+    Serial.print("Diff:");
+    Serial.println(angleDiff);
+    if((angleDiff > 180 && angleDiff < 192)||(angleDiff<=180 && angleDiff>168))
+    {
+        motor.defenseStop = true;
     }
     else{
-        // motor.Move(robotAngle, motorPower)
-    }
-    // additionally, make sure you're always running the line avoidance algorithm
-    // to ensure that it stays outside of the box 
+        motor.defenseStop = false;
+    if(goalAngle >360){
+           goalAngle = goalAngle-360;
+       }
+    ballAngleX = sin(toRadians(ballAngle));
+    ballAngleY = cos(toRadians(ballAngle));
+    goalAngleX = sin(toRadians(goalAngle));
+    goalAngleY = cos(toRadians(goalAngle));
 
-    // Serial.print("defense Tick : ");
-    // Serial.println(defenseTick);
-    // Serial.print("defense angle : ");
-    // Serial.println(defenseAngle);
-    // Serial.print("ball angle: ");
-    // Serial.println(ballAngle);
-    // Serial.print("goal angle: ");
-    // Serial.println(goalAngle);
+    robotAngleX = ballAngleX + goalAngleX;
+    robotAngleY = ballAngleY + goalAngleY;
+
+    defenseAngle = toDegrees(atan2(robotAngleX, robotAngleY));
+    if (defenseAngle < 0)
+    {
+
+        defenseAngle = defenseAngle + 360;
+    }
+    if(lineDetection.linepresent == true){
+        lineAngle = lineDetection.anglebisc+90;
+        if(lineAngle >360){
+            lineAngle = lineAngle-360;
+        }
+        vectorX = sin(toRadians(lineAngle));
+        vectorY = cos(toRadians(lineAngle));
+
+        dotProduct = (robotAngleX * vectorX) + (robotAngleY * vectorY);
+        denominator = pow(vectorX, 2) + pow(vectorY, 2);
+        robotAngleX = (dotProduct / denominator) * vectorX;
+        robotAngleY = (dotProduct / denominator) * vectorY;
+
+        defenseAngle = toDegrees(atan2(robotAngleX, robotAngleY));
+        if (defenseAngle < 0)
+        {
+            defenseAngle = defenseAngle + 360;
+        }
+    }
+    else if (defenseAngle > 270 || defenseAngle < 90)
+    {
+        vectorX = sin(toRadians(90));
+        vectorY = cos(toRadians(90));
+
+        dotProduct = (robotAngleX * vectorX) + (robotAngleY * vectorY);
+        denominator = pow(vectorX, 2) + pow(vectorY, 2);
+        robotAngleX = (dotProduct / denominator) * vectorX;
+        robotAngleY = (dotProduct / denominator) * vectorY;
+
+        defenseAngle = toDegrees(atan2(robotAngleX, robotAngleY));
+        if (defenseAngle < 0)
+        {
+            defenseAngle = defenseAngle + 360;
+        }
+
+    }
+    }
+
+    Serial.print("defense angle : ");
+    Serial.println(defenseAngle);
+    Serial.print("ball angle: ");
+    Serial.println(ballAngle);
+    Serial.print("goal angle: ");
+    Serial.println(goalAngle);
 }

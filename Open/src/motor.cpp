@@ -16,7 +16,7 @@ Motor::Motor()
     pincontrolFL = 25;
     pincontrolFR = 1;
 
-    
+    defenseStop = false;
     
     pinMode(pinspeedFR, OUTPUT);
     pinMode(pinspeedFL, OUTPUT);
@@ -29,16 +29,16 @@ Motor::Motor()
     max_power = 0;
 };
 
-void Motor::Process(double intended_angle, double motor_power, bool linePresent, double lineAngle){
-    if(linePresent == true){
-        Move(lineAngle, motor_power);
+void Motor::Process(double intended_angle, double motor_power, double lineAngle, double robotOrientation){
+    if(lineAngle != -1){
+        Move(lineAngle, motor_power, robotOrientation);
     }
     else{
-        Move(intended_angle, motor_power);
+        Move(intended_angle, motor_power, robotOrientation);
     }
 }
 
-void Motor::Move(double intended_angle, double motor_power)
+void Motor::Move(double intended_angle, double motor_power, double robotOrientation)
 {
     speedRR = 0;
     speedRL = 0;
@@ -58,7 +58,7 @@ void Motor::Move(double intended_angle, double motor_power)
     // Serial.print("Max Power: ");
     // Serial.println(max_power);
 
-    FindCorrection(compassSensor.getOrientation());
+    FindCorrection(compassSensor.getOrientation(), robotOrientation);
     // add correction to account for rotation needed
 
 
@@ -106,7 +106,10 @@ void Motor::Move(double intended_angle, double motor_power)
 
     int motor_switch = 0;
     motor_switch = digitalRead(39);
-    if(motor_switch == HIGH){
+    if(defenseStop == true){
+        Stop();
+    }
+    else if(motor_switch == HIGH){
         analogWrite(pinspeedFR, intspeedFR);
         analogWrite(pinspeedFL, intspeedFL);
         analogWrite(pinspeedRR, intspeedRR);
@@ -127,45 +130,47 @@ void Motor::Stop(){
     analogWrite(pinspeedRL, 0);
     analogWrite(pinspeedRR, 0);
 }
-void Motor::RecordDirection(){
+double Motor::RecordDirection(){
     if(digitalRead(36) == LOW){
         initialOrientation = compassSensor.getOrientation();
     }
+    return initialOrientation;
 }
 
 
 
-double Motor::FindCorrection(double orientation){
+double Motor::FindCorrection(double orientation, double robotOrientation){
     
 
-    orientationVal = abs(orientation - initialOrientation);
+    orientationVal = abs(orientation - robotOrientation);
 
     // Serial.println(orientationVal);
     if (orientationVal > 180)
     {
         orientationVal = 360 - orientationVal;
     }
-    if (initialOrientation <180  && orientation > 180)
+    if (robotOrientation <180  && orientation > 180)
     {
         orientation = -1*(360-orientation);
     }
-    else if (initialOrientation > 180 && orientation < 180)
+    else if (robotOrientation > 180 && orientation < 180)
     {
         orientation = (orientation + 360);
     }
-    if (orientation < initialOrientation)
+    if (orientation < robotOrientation)
     {
         orientationVal = -1*orientationVal;
     }
 
 
     correction = -1 * (sin(toRadians(orientationVal)));
+    correction*=0.3;
 
-    if (orientationVal > -8 && orientationVal < 0)
+    if (orientationVal > -10 && orientationVal < 0)
     {
         correction = 0;
     }
-    else if (orientationVal < 8 && orientationVal > 0)
+    else if (orientationVal <10 && orientationVal > 0)
     {
         correction = 0;
     }
@@ -181,8 +186,9 @@ double Motor::FindCorrection(double orientation){
     
     
 
-    Serial.println("Correction : ");
-    Serial.println(correction);
+    // Serial.println("Correction : ");
+    // Serial.println(correction);
+
     return correction;
 }
 

@@ -12,8 +12,7 @@ class Orbit {
         bool ballpresent = false;
         int realhighestVal;
         int xbeeHighVal;
-        double CalculateRobotAngle(double ballAngle, int goalAngle);
-        double CalculateRobotAngle2(double ballAngle, double goalAngle);
+        double CalculateRobotAngle2(double ballAngle, double goalAngle, double distance);
 
     private:
         int multiplier;

@@ -2,19 +2,22 @@
 #include <trig.h>
 #include <compassSensor.h>
 
+#ifndef MOTOR_H
+#define MOTOR_H
 class Motor
 {
 
 public:
     Motor();
-    void Move(double intended_angle, double motor_power);
-    void Process(double intended_angle, double motor_power, bool linePresent, double lineAngle);
+    void Move(double intended_angle, double motor_power, double robotOrientation);
+    void Process(double intended_angle, double motor_power, double lineAngle, double robotOrientation);
     void Stop();
-    void RecordDirection();
-    double FindCorrection(double orientation);
+    double RecordDirection();
+    double FindCorrection(double orientation, double robotOrientation);
     CompassSensor compassSensor;
     int dirAngle;
     double correction;
+    bool defenseStop;
 
 private:
     double initialOrientation = 0;
@@ -44,3 +47,5 @@ private:
 
     double orientationVal;
 };
+
+#endif

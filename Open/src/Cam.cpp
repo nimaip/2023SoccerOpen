@@ -10,7 +10,6 @@ Cam::Cam()
   yellowGoal = 0;
   blueGoal = 0;
   buffer = "";
-  dataNum = 0;
   validBallAngle = 0;
 }
 double Cam::CamCalc()
@@ -25,39 +24,44 @@ double Cam::CamCalc()
     {
       read = Serial2.read();
       // Serial.println(buffer.c_str());
-      if (read == 'a')
+      if (read == 'b')
       {
         ball = strtod(buffer.c_str(), NULL);
-        // Serial.print("ball: ");
-        // Serial.println(ball);
+        Serial.print("ball: ");
         ball = FilterAngle(ball, validBallAngle);
-        dataNum = 0;
+        Serial.println(ball);
         buffer = "";
         validBallAngle = ball;
       }
 
-      // else if (read == '|'&& dataNum == 0)
-      // // {
-      // //   blueGoal = strtod(buffer.c_str(), NULL);
-      // //   Serial.print("blue: ");
-      // //   Serial.println(blueGoal);
-      // //   dataNum++;
-      // //   buffer = "";
-      // // }
-      // // else if (read == '|'&& dataNum == 1)
-      // // {
-      // //   yellowGoal = strtod(buffer.c_str(), NULL);
-      // //   Serial.print("yellow: ");
-      // //   Serial.println(yellowGoal);
-      // //   dataNum++;
-      // //   buffer = "";
-      // // }
-      // else if (read == '|'&& dataNum == 2)
-      // {
-      //   buff2 = strtod(buffer.c_str(), NULL);
-      //   dataNum++;
-      //   buffer = "";
-      // }
+      else if (read == 'c')
+      {
+        blueGoal = strtod(buffer.c_str(), NULL);
+        blueGoal = FilterAngle(blueGoal, validBlueAngle);
+        Serial.print("blue: ");
+        Serial.println(blueGoal);
+        buffer = "";
+        validBlueAngle = blueGoal;
+      }
+      else if (read == 'd')
+      {
+        yellowGoal = strtod(buffer.c_str(), NULL);
+        Serial.print("yellow: ");
+        Serial.println(yellowGoal);
+        yellowGoal= FilterAngle(yellowGoal, validYellowAngle);
+        buffer = "";
+        validYellowAngle = yellowGoal;
+      }
+      else if (read == 'a')
+      {
+        distance = strtod(buffer.c_str(), NULL);
+        distance = FilterAngle(distance, validDistance);
+        actualDistance = 6.8 * exp(0.019 * distance);
+        Serial.print("Actual Distance: ");
+        Serial.println(actualDistance);
+        buffer = "";
+        validDistance = distance;
+      }
       else
       {
 
