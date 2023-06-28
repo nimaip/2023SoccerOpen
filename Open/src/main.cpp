@@ -173,7 +173,7 @@ void loop() {
   //offense
 
 
-  motor.Process(orbit.CalculateRobotAngle2(cam.ball, 0, cam.validDistance), 0.7, lineDetection.avoidanceAngle, goal.Process(cam.ball, motor.compassSensor.getOrientation(), cam.yellowGoal, motor.initialOrientation),orbit, goal.lightGateTwo(), cam.yellowGoal, lineDetection.Chord(), lineDetection.linepresent, esc);
+  motor.Process(orbit.CalculateRobotAngle2(cam.ball, 0, cam.validDistance), 0.7, lineDetection.avoidanceAngle, goal.Process(cam.ball, motor.compassSensor.getOrientation(), cam.yellowGoal, motor.initialOrientation),orbit, goal.lightGateTwo(), cam.yellowGoal, lineDetection.Chord(), lineDetection.linepresent, esc,lineDetection.anglebisc);
   delay(1000);
 }
 

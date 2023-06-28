@@ -63,7 +63,7 @@ void Motor::Process(double intended_angle, double motor_power, double lineAngle,
         {
             if (projection)
             {
-                
+                Move(projectionCalc(anglebisc, orbit.GetToSpinShotPosition(linePresent, goalAngle)),0.6, robotOrientation);
             }
             
             Move(orbit.GetToSpinShotPosition(linePresent, goalAngle), 0.6, robotOrientation);
