@@ -12,12 +12,13 @@ class Motor
 public:
     Motor();
     void Move(double intended_angle, double motor_power, double robotOrientation);
-    void Process(double intended_angle, double motor_power, double lineAngle, double robotOrientation, Orbit& orbit, bool backGate, int goalAngle, double Chord, bool linePresent, ESC& esc);
+    void Process(double intended_angle, double motor_power, double lineAngle, double robotOrientation, Orbit& orbit, bool backGate, int goalAngle, double Chord, bool linePresent, ESC& esc, int anglebisc);
     void Stop();
     double RecordDirection();
     double FindCorrection(double orientation, double robotOrientation);
     double getOrientation();
     void Spin(double speed, int direction);
+    int projectionCalc(int anglebisc, int robotAngle);
     CompassSensor compassSensor;
     int dirAngle;
     double correction;
@@ -52,6 +53,13 @@ private:
     double orientationVal;
     int stopTime;
     bool setTime;
+      double vectorX;
+  double vectorY;
+  double dotProduct;
+  double denominator;
+    double robotAngleX;
+  double robotAngleY;
+  bool projection;
 };
 
 #endif
