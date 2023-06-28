@@ -137,6 +137,9 @@ double Motor::RecordDirection(){
     return initialOrientation;
 }
 
+double Motor::getOrientation(){
+    return compassSensor.getOrientation();
+}
 
 
 double Motor::FindCorrection(double orientation, double robotOrientation){
@@ -164,7 +167,7 @@ double Motor::FindCorrection(double orientation, double robotOrientation){
 
 
     correction = -1 * (sin(toRadians(orientationVal)));
-    correction*=0.3;
+    correction*=0.57;
 
     if (orientationVal > -10 && orientationVal < 0)
     {
@@ -192,4 +195,23 @@ double Motor::FindCorrection(double orientation, double robotOrientation){
     return correction;
 }
 
-
+void Motor::Spin(double speed, int direction){
+  int motor_switch = 0;
+    motor_switch = digitalRead(39);
+    if(defenseStop == true){
+        Stop();
+    }
+    else if(motor_switch == HIGH){
+        analogWrite(pinspeedFR, speed);
+        analogWrite(pinspeedFL, speed);
+        analogWrite(pinspeedRR, speed);
+        analogWrite(pinspeedRL, speed);
+        digitalWrite(pincontrolFL, direction);
+        digitalWrite(pincontrolFR, direction);
+        digitalWrite(pincontrolRR, direction);
+        digitalWrite(pincontrolRL, direction);
+    }
+    else{
+        Stop();
+    }
+}

@@ -1,9 +1,15 @@
 #include <Goal.h>
 #include <Arduino.h>
+
+
 Goal::Goal()
 {
     kickTimer = 0;
     kickActivate = 1;
+    kickWait = 0;
+    myTime = 0;
+    turnOnTimer = true;
+    pinMode(38,INPUT);
 
 }
 double Goal::Process(double ball, int Orientation, double goalOrientation, int initialOrientation)
@@ -30,8 +36,8 @@ if(ball<60||ball>300){
     //     goalAngle = initialOrientation;
     // }
 
-    Serial.print("goal Angle : ");
-    Serial.println(goalAngle);
+    // Serial.print("goal Angle : ");
+    // Serial.println(goalAngle);
     return goalAngle;
 
 }
@@ -41,63 +47,39 @@ else{
 }
 
 
-void Goal::Kick(double goalDist, bool capture, double correction)
+void Goal::Kick(double goalDist, bool capture, ESC& esc)
 {
-    // if(capture == true){
-    //     newCap = true;
-    // }
-    // if (newCap == true && kickTimer == 0 )
-    // {
-    //     if (kickWait == 10 )
-    //     {
-      
-
-    //         kickActivate = 0;
-
-    //         kickTimer = kickTimer + 1;
-        
-    //     }
-    //     else if(kickWait >= 0 && kickWait <10)
-    //     {
-    //         kickWait += 1;
-    //     }
-    //     else if(kickWait >10)
-    //     {
-    //         kickWait = 0;
-    //     }
-    //     Serial.print("kick: ");
-    //     Serial.println(kickWait);
-    // }
-
-    // else if (kickTimer > 0 && kickTimer <= 30)
-    // {
-    //      kickTimer = kickTimer + 1;
-    // }
-    // else if(kickTimer>30 && kickTimer <= 500)
-    // {
-    //     kickActivate = 1;
-    //     kickTimer = kickTimer + 1;
-    //     kickWait = 31;
-    //     newCap = false;
-    // }
-
-    // else if (kickTimer > 500)
-    // {
-    //     kickTimer = 0;
-    // }
-    // else{
-    //     kickWait = 0;
-    //     kickTimer = 0;
-    // }
-    // if (kickActivate == 0)
-    // {
-    //     digitalWrite(10, HIGH);
-        
-    // }
-    // else if(kickActivate == 1)
-    // {
-    //     digitalWrite(10, LOW);
-    // }
-    // Serial.print("kickTimer : ");
-    // Serial.println(kickTimer);
+    // Serial.print("Goal dist:   ");
+    // Serial.println(goalDist);
+if(capture == true&&goalDist<126){
+digitalWrite(10,LOW);
+    esc.dribbler2(50,1);
+    if(turnOnTimer){
+        myTime = millis() +250;
+        turnOnTimer = false;
+    }
+    if(millis() > myTime && millis() < (myTime + 100)){
+        digitalWrite(10,HIGH);
+    }
+    if(millis() >= (myTime+100) && millis() <= (myTime + 290)){
+        turnOnTimer = true;
+    }
+}
+else{
+    turnOnTimer = true;
+}
+}
+//front lightgate
+bool Goal::lightGateOne(){
+  int lightGate = analogRead(14);
+  if(lightGate> 650)
+    return false;
+  return true;
+}
+//BACK LIGHTGATE
+bool Goal::lightGateTwo(){
+  int lightGate = analogRead(38);
+  if(lightGate> 650)
+    return false;
+  return true;
 }

@@ -5,8 +5,12 @@ Defense::Defense()
 
 }
 
-void Defense::defense(double ballAngle,int goalAngle, LineDetection& lineDetection, Motor& motor)
+void Defense::defense(double ballAngle,int goalAngle, LineDetection& lineDetection, Motor& motor, double xCoord, double yCoord)
 {
+    if(yCoord > 55){
+        defenseAngle = 180;
+        return;
+    }
     Serial.println(lineDetection.Chord());
     if(lineDetection.Chord() <0.8){
         lineDetection.avoidanceAngle = -1;

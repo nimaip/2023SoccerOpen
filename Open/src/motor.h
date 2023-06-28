@@ -14,6 +14,8 @@ public:
     void Stop();
     double RecordDirection();
     double FindCorrection(double orientation, double robotOrientation);
+    double getOrientation();
+    void Spin(double speed, int direction);
     CompassSensor compassSensor;
     int dirAngle;
     double correction;

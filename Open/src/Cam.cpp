@@ -1,3 +1,4 @@
+
 #include <Cam.h>
 #include <cstdlib>
 #include <cmath>
@@ -11,14 +12,16 @@ Cam::Cam()
   blueGoal = 0;
   buffer = "";
   validBallAngle = 0;
+  dissapeared = false;
 }
-double Cam::CamCalc()
+double Cam::CamCalc(Goal &goal)
 {
   // Read the most recent byte
   // Serial.println("hi");
   // Serial.print(Serial2.available());
   if (Serial2.available() > 0)
   {
+    Serial.println(Serial2.available());
 
     for (int i = 0; i < Serial2.available(); i++)
     {
@@ -27,10 +30,22 @@ double Cam::CamCalc()
       if (read == 'b')
       {
         ball = strtod(buffer.c_str(), NULL);
-        Serial.print("ball: ");
         ball = FilterAngle(ball, validBallAngle);
         Serial.println(ball);
+        ball = dissapear(ball, actualBallDistance, validBallAngle);
+
+
         buffer = "";
+        if (goal.lightGateOne() == true)
+        {
+          ball = 0;
+        }
+        else if (goal.lightGateTwo() == true)
+        {
+          ball = 180;
+        }
+        Serial.print("ball: ");
+        Serial.println(ball);
         validBallAngle = ball;
       }
 
@@ -38,29 +53,53 @@ double Cam::CamCalc()
       {
         blueGoal = strtod(buffer.c_str(), NULL);
         blueGoal = FilterAngle(blueGoal, validBlueAngle);
-        Serial.print("blue: ");
-        Serial.println(blueGoal);
+        // blueGoal =ComplimentaryFilterAngle(blueGoal, validBlueAngle);
+        // Serial.print("blue: ");
+        // Serial.println(blueGoal);
         buffer = "";
         validBlueAngle = blueGoal;
       }
       else if (read == 'd')
       {
         yellowGoal = strtod(buffer.c_str(), NULL);
-        Serial.print("yellow: ");
-        Serial.println(yellowGoal);
-        yellowGoal= FilterAngle(yellowGoal, validYellowAngle);
+        // Serial.print("yellow: ");
+        // Serial.println(yellowGoal);
+        yellowGoal = FilterAngle(yellowGoal, validYellowAngle);
+        // yellowGoal = ComplimentaryFilterAngle(yellowGoal, validYellowAngle);
         buffer = "";
         validYellowAngle = yellowGoal;
       }
       else if (read == 'a')
       {
-        distance = strtod(buffer.c_str(), NULL);
-        distance = FilterAngle(distance, validDistance);
-        actualDistance = 6.8 * exp(0.019 * distance);
+        ballDistance = strtod(buffer.c_str(), NULL);
+        ballDistance = FilterAngle(ballDistance, validBallDistance);
+        actualBallDistance = ComplimentaryFilterDistance(ballDistance, validBallDistance);
+        actualBallDistance = 6.8 * exp(0.019 * ballDistance);
+
         Serial.print("Actual Distance: ");
-        Serial.println(actualDistance);
+        Serial.println(actualBallDistance);
         buffer = "";
-        validDistance = distance;
+        validBallDistance = ballDistance;
+      }
+      else if (read == 'e')
+      {
+        yellowGoalDistance = strtod(buffer.c_str(), NULL);
+        yellowGoalDistance = FilterAngle(yellowGoalDistance, validYellowGoalDistance);
+        // yellowGoalDistance= ComplimentaryFilterDistance(yellowGoalDistance, validYellowGoalDistance);
+        buffer = "";
+        validYellowGoalDistance = yellowGoalDistance;
+        // Serial.print("Yellow Goal Distance: ");
+        // Serial.println(validYellowGoalDistance);
+      }
+      else if (read == 'f')
+      {
+        blueGoalDistance = strtod(buffer.c_str(), NULL);
+        blueGoalDistance = FilterAngle(blueGoalDistance, validBlueGoalDistance);
+        blueGoalDistance = ComplimentaryFilterDistance(blueGoalDistance, validBlueGoalDistance);
+        buffer = "";
+        validBlueGoalDistance = blueGoalDistance;
+        // Serial.print("Blue Goal Distance: ");
+        // Serial.println(validBlueGoalDistance);
       }
       else
       {
@@ -70,47 +109,103 @@ double Cam::CamCalc()
       }
     }
     // Serial.print(buffer);
-  //   double width = abs(validBallAngle - dist2);
-  //   if(width > 180){
-  //     width = 360 - width;
-  //   }
-  //   width *= 0.1;
-  //   if(validBallAngle > 180){
-  //     if(dist2 <= validBallAngle && dist2 >= validBallAngle - 180){
-  //       validBallAngle -= width;
-  //     }
-  //     else{
-  //       validBallAngle += width;
-  //     }
-  //   }
-  //   else{
-  //     if(dist2 >= validBallAngle && dist2 <= validBallAngle + 180){
-  //       validBallAngle += width;
-  //     }
-  //     else{
-  //       validBallAngle -= width;
-  //     }
-  //   }
-  //   if(validBallAngle > 360){
-  //     validBallAngle -= 360;
-  //   }
-  //   if(validBallAngle < 0){
-  //     validBallAngle += 360;
-  //   }
-    
-  // }
-  return 0;
+
+    return 0;
+  }
 }
-}
-double Cam::FilterAngle(double angle, double validAngle){
-  if(angle == -5 || angle == 0){
+double Cam::FilterAngle(double angle, double validAngle)
+{
+  if (angle == -5)
+  {
+    return -5;
+  }
+  if (angle == 0)
+  {
     return validAngle;
   }
-  if(angle > 360 || angle < 0){
+  if (angle > 360 || angle < 0)
+  {
     return validAngle;
   }
-  else{
+  else
+  {
     return angle;
   }
 }
 
+double Cam::dissapear(double angle, double distance, double validAngle)
+{
+  Serial.print("validDistance: ");
+  Serial.println(validDistance);
+  if (dissapeared == true)
+  {
+
+    if (angle != -5)
+    {
+      validCounter++;
+    }
+    else
+    {
+      validCounter = 0;
+    }
+    if (validCounter >= 3)
+    {
+      dissapeared = false;
+    }
+    if (validDistance < 40)
+    {
+      return validAngle;
+    }
+    else{
+      tooFar = true;
+      return -5;
+    }
+  }
+  else
+  {
+    if (invalidCounter >= 3)
+    {
+
+      dissapeared = true;
+    }
+    if (angle == -5)
+    {
+      invalidCounter++;
+      return validAngle;
+    }
+    else
+    {
+      invalidCounter = 0;
+      validDistance = distance;
+      validAngle = angle;
+      return ball;
+    }
+  }
+}
+double Cam::ComplimentaryFilterAngle(double angle, double validAngle)
+{
+  double diff = abs(angle - validAngle);
+  diff = min(diff, 360 - diff);
+  if (diff > 20)
+  {
+    return 0.1 * angle + 0.9 * validAngle;
+  }
+  else
+  {
+    return 0.9 * angle + 0.1 * validAngle;
+  }
+}
+
+double Cam::ComplimentaryFilterDistance(double dist, double validDist)
+{
+  double diff = abs(dist - validDist);
+  diff = min(diff, 360 - diff);
+  if (diff > 20)
+  {
+    return 0.1 * dist + 0.9 * validDist;
+  }
+  else
+  {
+    return 0.9 * dist + 0.1 * validDist;
+  }
+}

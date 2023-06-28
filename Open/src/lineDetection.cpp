@@ -69,11 +69,11 @@ int *LineDetection::GetValues()
         }
         lineValues[i] = val;
     }
-    // for(int i = 0; i < 10; i++){
-    //     Serial.print(i);
-    //     Serial.print(": ");
-    //     Serial.println(lineValues[i]);
-    // }
+    for(int i = 0; i < 48; i++){
+        Serial.print(i);
+        Serial.print(": ");
+        Serial.println(lineValues[i]);
+    }
     return lineValues;
 };
 
@@ -171,8 +171,8 @@ double LineDetection::Process(int *calibrateVal)
         {
             angleDiff = 360 - angleDiff;
         }
-        Serial.print("angle Diff: ");
-        Serial.println(angleDiff);
+        // Serial.print("angle Diff: ");
+        // Serial.println(angleDiff);
         if (angleDiff > 90 && lineSwitch == false)
         {
             lineSwitch = true;
@@ -186,7 +186,7 @@ double LineDetection::Process(int *calibrateVal)
                 lineSwitch = false;
             }
         }
-        Serial.println(lineSwitch);
+        // Serial.println(lineSwitch);
         if (lineSwitch == false)
         {
             avoidanceAngle = anglebisc + 180;
@@ -210,6 +210,7 @@ double LineDetection::Process(int *calibrateVal)
             lineSwitch = false;
         }
     }
-
+    Serial.print("line: ");
+    Serial.println(avoidanceAngle);
     return avoidanceAngle;
 };

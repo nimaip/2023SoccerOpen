@@ -17,10 +17,10 @@ Serial.println("hey");
 };
 void LRF::setup(){
 
-     lox1 = Adafruit_VL53L0X();
-    lox2 = Adafruit_VL53L0X();
+  lox1 = Adafruit_VL53L0X();
+  lox2 = Adafruit_VL53L0X();
 
-      while (! Serial) { delay(1); }
+  while (! Serial) { delay(1); }
 
   pinMode(30, OUTPUT);
   pinMode(31, OUTPUT);
@@ -53,13 +53,11 @@ void LRF::setID() {
   // activating LOX1 and resetting LOX2
   digitalWrite(30, HIGH);
   digitalWrite(31, LOW);
-  Serial.println("hi");
+  Serial.println("hi!");
   // initing LOX1
-  Serial.println(lox1.begin(0x30,false,&Wire1));
-//   if(!lox1.begin(0x30,true,&Wire1)) {
-//     Serial.println(F("Failed to boot first VL53L0X"));
-//     while(1);
-//   }
+  while(lox1.begin(0x30,false,&Wire1) != true) {
+    Serial.println(("Failed to boot first VL53L0X"));
+  }
   delay(10);
   Serial.println("hi");
   // activating LOX2

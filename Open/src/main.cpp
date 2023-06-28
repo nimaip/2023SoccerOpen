@@ -7,8 +7,34 @@
 #include <Goal.h>
 #include <Defense.h>
 #include<calibration.h>
-#include<LRF.h>
+// #include<LRF.h>
+#include "Adafruit_VL53L0X.h"
+#include <localization.h>
 
+// address we will assign if dual sensor is present
+#define LOX1_ADDRESS 0x30
+#define LOX2_ADDRESS 0x31
+#define LOX3_ADDRESS 0x32
+#define LOX4_ADDRESS 0x33
+
+// set the pins to shutdown
+#define SHT_LOX1 30
+#define SHT_LOX2 31
+#define SHT_LOX3 26
+#define SHT_LOX4 27
+// objects for the vl53l0x
+Adafruit_VL53L0X lox1 = Adafruit_VL53L0X();
+Adafruit_VL53L0X lox2 = Adafruit_VL53L0X();
+Adafruit_VL53L0X lox3 = Adafruit_VL53L0X();
+Adafruit_VL53L0X lox4 = Adafruit_VL53L0X();
+
+// this holds the measurement
+VL53L0X_RangingMeasurementData_t measure1;
+VL53L0X_RangingMeasurementData_t measure2;
+VL53L0X_RangingMeasurementData_t measure3;
+VL53L0X_RangingMeasurementData_t measure4;
+
+Localization localization;
 LineDetection lineDetection;
 Motor motor;
 Cam cam;
@@ -17,34 +43,182 @@ ESC esc;
 Goal goal;
 Defense defense;
 Calibration calibration;
-LRF lrf;
+// LRF lrf;
 double initialOrientation = 0;
+int dribbler1Power = 0;
+boolean lightGate = false;
+unsigned long myTime = 0;
+
+void setID() {
+  // all reset
+  digitalWrite(SHT_LOX1, LOW);    
+  digitalWrite(SHT_LOX2, LOW);
+  digitalWrite(SHT_LOX3, LOW);    
+  digitalWrite(SHT_LOX4, LOW);
+  delay(10);
+  // all unreset
+  digitalWrite(SHT_LOX1, HIGH);
+  digitalWrite(SHT_LOX2, HIGH);
+  digitalWrite(SHT_LOX3, HIGH);
+  digitalWrite(SHT_LOX4, HIGH);
+  delay(10);
+
+  // activating LOX1 and resetting LOX2
+  digitalWrite(SHT_LOX1, HIGH);
+  digitalWrite(SHT_LOX2, LOW);
+  digitalWrite(SHT_LOX3, LOW);
+    digitalWrite(SHT_LOX4, LOW);
+
+  // initing LOX1
+  if(!lox1.begin(LOX1_ADDRESS,false,&Wire1)) {
+    Serial.println(F("Failed to boot first VL53L0X"));
+    while(1);
+  }
+  delay(10);
+
+  // activating LOX2
+  digitalWrite(SHT_LOX2, HIGH);
+  delay(10);
+
+  //initing LOX2
+  if(!lox2.begin(LOX2_ADDRESS,false,&Wire1)) {
+    Serial.println(F("Failed to boot second VL53L0X"));
+    while(1);
+  }
+
+    digitalWrite(SHT_LOX3, HIGH);
+  delay(10);
+
+  //initing LOX3
+  if(!lox3.begin(LOX3_ADDRESS,false,&Wire1)) {
+    Serial.println(F("Failed to boot second VL53L0X"));
+    while(1);
+  }
+
+    digitalWrite(SHT_LOX4, HIGH);
+  delay(10);
+
+  //initing LOX4
+  if(!lox4.begin(LOX4_ADDRESS,false,&Wire1)) {
+    Serial.println(F("Failed to boot second VL53L0X"));
+    while(1);
+  }
+}
+
+
+int frontLRF(){
+   lox1.rangingTest(&measure1, false);
+  if(measure1.RangeStatus != 4) {     // if not out of range
+    return measure1.RangeMilliMeter;
+  } else {
+    return -1;
+  }
+}
+int backLRF(){
+   lox3.rangingTest(&measure3, false);
+  if(measure3.RangeStatus != 4) {     // if not out of range
+    return measure3.RangeMilliMeter;
+  } else {
+    return -1;
+  }
+}
+int rightLRF(){
+   lox4.rangingTest(&measure4, false);
+  if(measure4.RangeStatus != 4) {     // if not out of range
+    return measure4.RangeMilliMeter;
+  } else {
+    return -1;
+  }
+}
+int leftLRF(){
+     lox2.rangingTest(&measure2, false);
+  if(measure2.RangeStatus != 4) {     // if not out of range
+    return measure2.RangeMilliMeter;
+  } else {
+    return -1;
+  }
+}
+
+
+
 void setup() {
   Serial2.begin(19200);
-  esc.dribbler1(0);
-  esc.dribbler2(0);
-  lrf.setup();
+  pinMode(10, OUTPUT);
+  // delay(5000);
+  esc.dribbler1(0, 0);
+  esc.dribbler2(0, 0);
+  delay(1000);
 
+  // lrf.setup();
+
+  // Serial.begin(115200);
+
+  // wait until serial port opens for native USB devices
+  // while (! Serial) { delay(1); }
+
+  pinMode(SHT_LOX1, OUTPUT);
+  pinMode(SHT_LOX2, OUTPUT);
+  pinMode(SHT_LOX3, OUTPUT);
+  pinMode(SHT_LOX4, OUTPUT);
+
+  Serial.println(F("Shutdown pins inited..."));
+
+  digitalWrite(SHT_LOX1, LOW);
+  digitalWrite(SHT_LOX2, LOW);
+  digitalWrite(SHT_LOX3, LOW);
+  digitalWrite(SHT_LOX4, LOW);
+
+  Serial.println(F("Both in reset mode...(pins are low)"));
+  
+  
+  Serial.println(F("Starting..."));
+  // setID();
 }
 
 void loop() {
-//   cam.CamCalc();
-//   calibration.calState(lineDetection);
-//   initialOrientation = motor.RecordDirection();
-//   lineDetection.Process(calibration.calVal);
-//   initialOrientation = motor.RecordDirection();
-//   //defense
-//   Serial.print("angle bisc: ");
-// Serial.println(lineDetection.anglebisc);
 
-//   defense.defense(cam.ball,cam.yellowGoal,lineDetection, motor); // run lineavoidance process before
-// Serial.print("line: ");
-// Serial.println(lineDetection.avoidanceAngle);
-//   motor.Process(defense.defenseAngle, 0.6, lineDetection.avoidanceAngle, initialOrientation);
+  // motor.Spin(1);
 
-//   //offense
-//   // motor.Process(orbit.CalculateRobotAngle2(cam.ball, 0, cam.actualDistance), 0.6, lineDetection.avoidanceAngle, goal.Process(cam.ball, motor.compassSensor.getOrientation(), cam.yellowGoal, initialOrientation));
-  
-  lrf.read_dual_sensors();
-  delay(200);
+
+  esc.dribbler1(0,1);
+  esc.dribbler2(0,1);
+
+
+  // cam.CamCalc(goal);
+  // esc.runDribbler(cam.ball, cam.actualBallDistance, goal.lightGateOne());
+  // goal.Kick(cam.yellowGoalDistance,goal.lightGateOne(), esc);
+
+  // calibration.calState(lineDetection);
+  // initialOrientation = motor.RecordDirection();
+  // lineDetection.Process(calibration.calVal);
+  // initialOrientation = motor.RecordDirection();
+
+
+  //defense
+  // defense.defense(cam.ball,cam.yellowGoal,lineDetection, motor); // run lineavoidance process before
+  // motor.Process(defense.defenseAngle, 0.6, lineDetection.avoidanceAngle, initialOrientation);
+
+  //offense
+
+  // SPIN SHOT
+  // int left_lrf = leftLRF();
+  // int front_lrf = frontLRF();
+  // int right_lrf = rightLRF();
+  // int back_lrf = backLRF();
+  // if(orbit.InSpinShotPosition(left_lrf, front_lrf, right_lrf, back_lrf)){
+  //   double robot_orientation = motor.getOrientation();
+  //   if(orbit.InOrientationSpinShot(robot_orientation)){
+  //     motor.Spin(1, 1);
+  //   }
+  //   else{
+  //     motor.Spin(0.3, 1);
+  //   }
+  // }
+  // else{
+  //   double robotAngle = orbit.GetToSpinShotPosition(left_lrf, front_lrf, right_lrf, back_lrf);
+    
+  // }
+
+  // motor.Process(orbit.CalculateRobotAngle2(cam.ball, 0, cam.actualBallDistance), 0.7, lineDetection.avoidanceAngle, goal.Process(cam.ball, motor.compassSensor.getOrientation(), cam.yellowGoal, initialOrientation));
 }
+
