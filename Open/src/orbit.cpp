@@ -158,9 +158,41 @@ double Orbit::InOrientationSpinShot(double robotOrientation, int initialOrientat
 return orientationVal;
 }
 
-double Orbit::GetToHomePositionOffense(double goalDistance, double goalAngle){
+double Orbit::GetToHomePositionOffense(double goalDistance, double goalAngle, bool disappear){
+    if(!disappear){
+        return -1;
+    }
     if(goalAngle == -5){
-        return 0;
+        return 180;
+    }
+
+    if(goalAngle >185){
+        xcomp = -1;
+    }
+    else if(goalAngle < 175){
+        xcomp = 1;
+    }
+    else{
+        xcomp = 0;
     }
     
+    if(goalDistance > 72){
+        ycomp = -1;
+    }
+    else if(goalDistance < 65){
+        ycomp = 1;
+    }
+    else{
+        ycomp = 0;
+    }
+    if(xcomp == 0 && ycomp == 0)
+        return -2;
+    homeAngle = toDegrees(atan2(xcomp, ycomp));
+        if (homeAngle < 0)
+    {
+
+        homeAngle = homeAngle + 360;
+    }
+    return homeAngle;
 }
+

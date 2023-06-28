@@ -28,8 +28,17 @@ Motor::Motor()
     max_power = 0;
 };
 
-void Motor::Process(double intended_angle, double motor_power, double lineAngle, double robotOrientation, Orbit &orbit, bool backGate, int goalAngle, double Chord, bool linePresent, ESC& esc, int anglebisc)
+void Motor::Process(double intended_angle, double motor_power, double lineAngle, double robotOrientation, Orbit &orbit, bool backGate, int goalAngle, double Chord, bool linePresent, ESC& esc, int anglebisc, double homeAngle)
 {
+if(homeAngle != -1){
+    if(homeAngle == -2){
+        Stop();
+    }
+    else{
+    Move(homeAngle, motor_power, robotOrientation);
+    }
+}
+else{
     if (backGate == true)
     {
         if (lineAngle != -1 && Chord < 0.8)
@@ -86,6 +95,7 @@ void Motor::Process(double intended_angle, double motor_power, double lineAngle,
     {
         Move(intended_angle, motor_power, robotOrientation);
     }
+}
 }
 
 int Motor::projectionCalc(int anglebisc, int robotAngle){

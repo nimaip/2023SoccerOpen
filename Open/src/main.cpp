@@ -166,6 +166,7 @@ void loop() {
   lineDetection.Process(calibration.calVal);
 
 
+
   //defense
   // defense.defense(cam.ball,cam.yellowGoal,lineDetection, motor); // run lineavoidance process before
   // motor.Process(defense.defenseAngle, 0.6, lineDetection.avoidanceAngle, initialOrientation);
@@ -173,7 +174,7 @@ void loop() {
   //offense
 
 
-  motor.Process(orbit.CalculateRobotAngle2(cam.ball, 0, cam.validDistance), 0.7, lineDetection.avoidanceAngle, goal.Process(cam.ball, motor.compassSensor.getOrientation(), cam.yellowGoal, motor.initialOrientation),orbit, goal.lightGateTwo(), cam.yellowGoal, lineDetection.Chord(), lineDetection.linepresent, esc,lineDetection.anglebisc);
+  motor.Process(orbit.CalculateRobotAngle2(cam.ball, 0, cam.validDistance), 0.7, lineDetection.avoidanceAngle, goal.Process(cam.ball, motor.compassSensor.getOrientation(), cam.yellowGoal, motor.initialOrientation),orbit, goal.lightGateTwo(), cam.yellowGoal, lineDetection.Chord(), lineDetection.linepresent, esc,lineDetection.anglebisc,   orbit.GetToHomePositionOffense(cam.yellowGoalDistance, cam.yellowGoal, cam.tooFar));
   delay(1000);
 }
 

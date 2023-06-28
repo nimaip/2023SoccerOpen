@@ -18,11 +18,13 @@ class Orbit {
         double CalculateRobotAngle2(double ballAngle, double goalAngle, double distance);
         double GetToSpinShotPosition(bool linePresent, int goalAngle);
         double InOrientationSpinShot(double robotOrientation, int initialOrientation);
-        double GetToHomePositionOffense(double goalDistance, double goalAngle);
+        double GetToHomePositionOffense(double goalDistance, double goalAngle, bool disappear);
         bool inPos;
         bool inOrientation;
     private:
         int multiplier;
+        double xcomp, ycomp;
+        double homeAngle;
 
          
         

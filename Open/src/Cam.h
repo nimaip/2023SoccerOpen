@@ -18,7 +18,7 @@ class Cam {
         double yellowGoalDistance;
         double blueGoalDistance;
         bool tooFar;
-                double validDistance;
+double validDistance;
 
 
         double CamCalc(Goal& goal);

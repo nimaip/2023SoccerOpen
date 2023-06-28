@@ -12,7 +12,7 @@ class Motor
 public:
     Motor();
     void Move(double intended_angle, double motor_power, double robotOrientation);
-    void Process(double intended_angle, double motor_power, double lineAngle, double robotOrientation, Orbit& orbit, bool backGate, int goalAngle, double Chord, bool linePresent, ESC& esc, int anglebisc);
+    void Process(double intended_angle, double motor_power, double lineAngle, double robotOrientation, Orbit& orbit, bool backGate, int goalAngle, double Chord, bool linePresent, ESC& esc, int anglebisc, double homeAngle);
     void Stop();
     double RecordDirection();
     double FindCorrection(double orientation, double robotOrientation);

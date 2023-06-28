@@ -36,11 +36,13 @@ double Cam::CamCalc(Goal &goal)
         buffer = "";
         if (goal.lightGateOne() == true)
         {
+          tooFar = false;
           ball = 0;
         }
         else if (goal.lightGateTwo() == true)
         {
           ball = 180;
+          tooFar = false;
         }
         Serial.print("ball: ");
         Serial.println(ball);
@@ -84,6 +86,8 @@ double Cam::CamCalc(Goal &goal)
       {
         yellowGoalDistance = strtod(buffer.c_str(), NULL);
         yellowGoalDistance = FilterAngle(yellowGoalDistance, validYellowGoalDistance);
+        yellowGoalDistance = 0.46 * exp(0.035 * yellowGoalDistance);
+        // yellowGoalDistance = 0.145 * exp(0.046 * yellowGoalDistance);
         // yellowGoalDistance= ComplimentaryFilterDistance(yellowGoalDistance, validYellowGoalDistance);
         buffer = "";
         validYellowGoalDistance = yellowGoalDistance;
