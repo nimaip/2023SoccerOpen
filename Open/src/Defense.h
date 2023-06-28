@@ -13,7 +13,7 @@ class Defense
 {
 public:
     Defense();
-    void defense(double ballAngle,int goalAngle, LineDetection& lineDetection, Motor& motor, double xCoord, double yCoord);
+    void defense(double ballAngle,int goalAngle, LineDetection& lineDetection, Motor& motor, double xCoord, double yCoord, bool dissapear);
     double defenseAngle;
     bool stop;
 
@@ -31,6 +31,7 @@ private:
   double robotAngleY;
   double angleDiff;
   double lineAngle;
+        double xcomp, ycomp;
 };
 
 #endif
