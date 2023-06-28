@@ -157,3 +157,10 @@ double Orbit::InOrientationSpinShot(double robotOrientation, int initialOrientat
     }
 return orientationVal;
 }
+
+double Orbit::GetToHomePositionOffense(double goalDistance, double goalAngle){
+    if(goalAngle == -5){
+        return 0;
+    }
+    
+}

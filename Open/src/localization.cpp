@@ -17,23 +17,8 @@ void Localization::findPosition(double yellow_goal_angle, double blue_goal_angle
     // Serial.println(slope2);
 
     double xval = board_field_width/2 - board_field_length/(slope1 - slope2);
-    double yval = (xval - board_field_width/2) * slope2;
-
-    // mesh with lrf distances
-
-    // if() // both goal angles are detected
-    // {
-        xCoord = xval;
-        yCoord = yval;
-    // }
-    // else{
-    //     xCoord = lrfxCoord;
-    //     yCoord = lrfyCoord;
-    // }
-
-
     
-
+    
 }
 void Localization::lrfPosition(double right_lrf, double back_lrf)
 {
@@ -48,3 +33,4 @@ void Localization::lrfPosition(double right_lrf, double back_lrf)
     xCoord = lrfxCoord;
     yCoord = lrfyCoord;
 }
+
