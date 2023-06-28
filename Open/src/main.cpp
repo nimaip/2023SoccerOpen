@@ -44,9 +44,6 @@ Goal goal;
 Defense defense;
 Calibration calibration;
 // LRF lrf;
-double initialOrientation = 0;
-int dribbler1Power = 0;
-boolean lightGate = false;
 unsigned long myTime = 0;
 
 void setID() {
@@ -149,49 +146,24 @@ void setup() {
   esc.dribbler2(0, 0);
   delay(1000);
 
-  // lrf.setup();
 
-  // Serial.begin(115200);
-
-  // wait until serial port opens for native USB devices
-  // while (! Serial) { delay(1); }
-
-  pinMode(SHT_LOX1, OUTPUT);
-  pinMode(SHT_LOX2, OUTPUT);
-  pinMode(SHT_LOX3, OUTPUT);
-  pinMode(SHT_LOX4, OUTPUT);
-
-  Serial.println(F("Shutdown pins inited..."));
-
-  digitalWrite(SHT_LOX1, LOW);
-  digitalWrite(SHT_LOX2, LOW);
-  digitalWrite(SHT_LOX3, LOW);
-  digitalWrite(SHT_LOX4, LOW);
-
-  Serial.println(F("Both in reset mode...(pins are low)"));
-  
-  
-  Serial.println(F("Starting..."));
-  // setID();
 }
 
 void loop() {
 
-  // motor.Spin(1);
 
 
   esc.dribbler1(0,1);
   esc.dribbler2(0,1);
 
 
-  // cam.CamCalc(goal);
-  // esc.runDribbler(cam.ball, cam.actualBallDistance, goal.lightGateOne());
-  // goal.Kick(cam.yellowGoalDistance,goal.lightGateOne(), esc);
+  cam.CamCalc(goal);
+  esc.runDribbler(cam.ball, cam.validDistance, goal.lightGateOne(), goal.lightGateTwo());
+  goal.Kick(cam.yellowGoalDistance,goal.lightGateOne(), esc);
 
-  // calibration.calState(lineDetection);
-  // initialOrientation = motor.RecordDirection();
-  // lineDetection.Process(calibration.calVal);
-  // initialOrientation = motor.RecordDirection();
+  calibration.calState(lineDetection);
+  motor.RecordDirection();
+  lineDetection.Process(calibration.calVal);
 
 
   //defense
@@ -200,25 +172,8 @@ void loop() {
 
   //offense
 
-  // SPIN SHOT
-  // int left_lrf = leftLRF();
-  // int front_lrf = frontLRF();
-  // int right_lrf = rightLRF();
-  // int back_lrf = backLRF();
-  // if(orbit.InSpinShotPosition(left_lrf, front_lrf, right_lrf, back_lrf)){
-  //   double robot_orientation = motor.getOrientation();
-  //   if(orbit.InOrientationSpinShot(robot_orientation)){
-  //     motor.Spin(1, 1);
-  //   }
-  //   else{
-  //     motor.Spin(0.3, 1);
-  //   }
-  // }
-  // else{
-  //   double robotAngle = orbit.GetToSpinShotPosition(left_lrf, front_lrf, right_lrf, back_lrf);
-    
-  // }
 
-  // motor.Process(orbit.CalculateRobotAngle2(cam.ball, 0, cam.actualBallDistance), 0.7, lineDetection.avoidanceAngle, goal.Process(cam.ball, motor.compassSensor.getOrientation(), cam.yellowGoal, initialOrientation));
+  motor.Process(orbit.CalculateRobotAngle2(cam.ball, 0, cam.validDistance), 0.7, lineDetection.avoidanceAngle, goal.Process(cam.ball, motor.compassSensor.getOrientation(), cam.yellowGoal, motor.initialOrientation),orbit, goal.lightGateTwo(), cam.yellowGoal, lineDetection.Chord(), lineDetection.linepresent, esc);
+  delay(1000);
 }
 

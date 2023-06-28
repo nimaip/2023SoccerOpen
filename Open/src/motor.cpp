@@ -3,7 +3,6 @@
 #include <math.h>
 #include <string.h>
 
-
 Motor::Motor()
 {
     // corresponding pin values on teensy
@@ -17,7 +16,7 @@ Motor::Motor()
     pincontrolFR = 1;
 
     defenseStop = false;
-    
+
     pinMode(pinspeedFR, OUTPUT);
     pinMode(pinspeedFL, OUTPUT);
     pinMode(pinspeedRR, OUTPUT);
@@ -29,11 +28,53 @@ Motor::Motor()
     max_power = 0;
 };
 
-void Motor::Process(double intended_angle, double motor_power, double lineAngle, double robotOrientation){
-    if(lineAngle != -1){
+void Motor::Process(double intended_angle, double motor_power, double lineAngle, double robotOrientation, Orbit &orbit, bool backGate, int goalAngle, double Chord, bool linePresent, ESC& esc)
+{
+    if (backGate == true)
+    {
+        if (Chord < 0.8 && orbit.inOrientation == false)
+        {
+            lineAngle = -1;
+        }
+        if (lineAngle != -1 && orbit.inOrientation == false)
+        {
+            Move(lineAngle, 0.6, robotOrientation);
+        }
+        else if (orbit.inPos == true)
+        {
+            Serial.println("hi");
+            esc.spinDribbler();
+            if (orbit.inOrientation == true)
+            {
+                if(setTime == true){
+                stopTime = millis()+1000;
+                setTime = false;
+                }
+                esc.spinDribbler();
+                Serial.println("hii");
+                if(millis()<stopTime){
+                Spin(0.7, 1);
+                }
+                else{
+                    Stop();
+                }
+            }
+            Spin(0.3, orbit.InOrientationSpinShot(compassSensor.getOrientation(), initialOrientation));
+        }
+        else
+        {
+            Serial.println(orbit.GetToSpinShotPosition(linePresent, goalAngle));
+            Move(orbit.GetToSpinShotPosition(linePresent, goalAngle), 0.6, robotOrientation);
+        }
+
+    }
+
+    else if (lineAngle != -1)
+    {
         Move(lineAngle, motor_power, robotOrientation);
     }
-    else{
+    else
+    {
         Move(intended_angle, motor_power, robotOrientation);
     }
 }
@@ -61,13 +102,6 @@ void Motor::Move(double intended_angle, double motor_power, double robotOrientat
     FindCorrection(compassSensor.getOrientation(), robotOrientation);
     // add correction to account for rotation needed
 
-
-
-  
-
-
-
-
     // max_power += 0.01;
     // Serial.println(powerFR);
     // Serial.println(powerFL);
@@ -78,11 +112,10 @@ void Motor::Move(double intended_angle, double motor_power, double robotOrientat
     powerRR = powerRR / max_power;
     powerRL = powerRL / max_power;
 
-
     powerFR += correction;
     powerFL += correction;
     powerRR += correction;
-    powerRL += correction; 
+    powerRL += correction;
 
     controlRL = powerRL < 0 ? LOW : HIGH;
     controlRR = powerRR > 0 ? LOW : HIGH;
@@ -96,20 +129,20 @@ void Motor::Move(double intended_angle, double motor_power, double robotOrientat
     speedRR = abs(powerRR) / max_power;
     speedRL = abs(powerRL) / max_power;
 
-
     int multiplier = 255;
-    int intspeedFR = (int) ((speedFR * multiplier)*motor_power);
-    int intspeedFL = (int) ((speedFL * multiplier)*motor_power);
-    int intspeedRR = (int) ((speedRR * multiplier)*motor_power);
-    int intspeedRL = (int) ((speedRL * multiplier)*motor_power);
-
+    int intspeedFR = (int)((speedFR * multiplier) * motor_power);
+    int intspeedFL = (int)((speedFL * multiplier) * motor_power);
+    int intspeedRR = (int)((speedRR * multiplier) * motor_power);
+    int intspeedRL = (int)((speedRL * multiplier) * motor_power);
 
     int motor_switch = 0;
     motor_switch = digitalRead(39);
-    if(defenseStop == true){
+    if (defenseStop == true)
+    {
         Stop();
     }
-    else if(motor_switch == HIGH){
+    else if (motor_switch == HIGH)
+    {
         analogWrite(pinspeedFR, intspeedFR);
         analogWrite(pinspeedFL, intspeedFL);
         analogWrite(pinspeedRR, intspeedRR);
@@ -119,31 +152,35 @@ void Motor::Move(double intended_angle, double motor_power, double robotOrientat
         digitalWrite(pincontrolRR, controlRR);
         digitalWrite(pincontrolRL, controlRL);
     }
-    else{
+    else
+    {
         Stop();
     }
 }
 
-void Motor::Stop(){
+void Motor::Stop()
+{
     analogWrite(pinspeedFR, 0);
     analogWrite(pinspeedFL, 0);
     analogWrite(pinspeedRL, 0);
     analogWrite(pinspeedRR, 0);
 }
-double Motor::RecordDirection(){
-    if(digitalRead(36) == LOW){
+double Motor::RecordDirection()
+{
+    if (digitalRead(36) == LOW)
+    {
         initialOrientation = compassSensor.getOrientation();
     }
     return initialOrientation;
 }
 
-double Motor::getOrientation(){
+double Motor::getOrientation()
+{
     return compassSensor.getOrientation();
 }
 
-
-double Motor::FindCorrection(double orientation, double robotOrientation){
-    
+double Motor::FindCorrection(double orientation, double robotOrientation)
+{
 
     orientationVal = abs(orientation - robotOrientation);
 
@@ -152,9 +189,9 @@ double Motor::FindCorrection(double orientation, double robotOrientation){
     {
         orientationVal = 360 - orientationVal;
     }
-    if (robotOrientation <180  && orientation > 180)
+    if (robotOrientation < 180 && orientation > 180)
     {
-        orientation = -1*(360-orientation);
+        orientation = -1 * (360 - orientation);
     }
     else if (robotOrientation > 180 && orientation < 180)
     {
@@ -162,18 +199,17 @@ double Motor::FindCorrection(double orientation, double robotOrientation){
     }
     if (orientation < robotOrientation)
     {
-        orientationVal = -1*orientationVal;
+        orientationVal = -1 * orientationVal;
     }
 
-
     correction = -1 * (sin(toRadians(orientationVal)));
-    correction*=0.57;
+    correction *= 0.57;
 
     if (orientationVal > -10 && orientationVal < 0)
     {
         correction = 0;
     }
-    else if (orientationVal <10 && orientationVal > 0)
+    else if (orientationVal < 10 && orientationVal > 0)
     {
         correction = 0;
     }
@@ -186,32 +222,37 @@ double Motor::FindCorrection(double orientation, double robotOrientation){
         correction = 1;
     }
 
-    
-    
-
     // Serial.println("Correction : ");
     // Serial.println(correction);
 
     return correction;
 }
 
-void Motor::Spin(double speed, int direction){
-  int motor_switch = 0;
+void Motor::Spin(double speed, int direction)
+{
+    int motor_switch = 0;
     motor_switch = digitalRead(39);
-    if(defenseStop == true){
+    if (defenseStop == true)
+    {
         Stop();
     }
-    else if(motor_switch == HIGH){
+    else if (motor_switch == HIGH)
+    {
+        controlRL = direction < 0 ? LOW : HIGH;
+        controlRR = direction > 0 ? LOW : HIGH;
+        controlFL = direction < 0 ? LOW : HIGH;
+        controlFR = direction > 0 ? LOW : HIGH;
         analogWrite(pinspeedFR, speed);
         analogWrite(pinspeedFL, speed);
         analogWrite(pinspeedRR, speed);
         analogWrite(pinspeedRL, speed);
-        digitalWrite(pincontrolFL, direction);
-        digitalWrite(pincontrolFR, direction);
-        digitalWrite(pincontrolRR, direction);
-        digitalWrite(pincontrolRL, direction);
+        digitalWrite(pincontrolFL, controlFL);
+        digitalWrite(pincontrolFR, controlFR);
+        digitalWrite(pincontrolRR, controlRR);
+        digitalWrite(pincontrolRL, controlRL);
     }
-    else{
+    else
+    {
         Stop();
     }
 }

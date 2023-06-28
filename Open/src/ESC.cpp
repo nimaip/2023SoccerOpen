@@ -11,19 +11,21 @@ ESC::ESC()
     gradspeed2 = 0;
 }
 
-
-void ESC::runDribbler(double ballAngle, double dist, bool capture){
+void ESC::spinDribbler(){
+  dribbler1(90,0);
+}
+void ESC::runDribbler(double ballAngle, double dist, bool capture1, bool capture2){
     double width = 40; 
   if(ballAngle < width || ballAngle > 360 - width){ // front intake
 
-    if(dist < 20 || capture){
+    if(dist < 20 || capture1){
       dribbler2(70,0);
     }
 
   }
   else if(ballAngle > 180 - width && ballAngle < 180 + width){
 
-    if(dist < 20){
+    if(dist < 20|| capture2){
         dribbler1(70,0);
     }
   }

@@ -72,14 +72,15 @@ else{
 //front lightgate
 bool Goal::lightGateOne(){
   int lightGate = analogRead(14);
-  if(lightGate> 650)
+  if(lightGate> 500)
     return false;
   return true;
 }
 //BACK LIGHTGATE
 bool Goal::lightGateTwo(){
   int lightGate = analogRead(38);
-  if(lightGate> 650)
+
+  if(lightGate> 710)
     return false;
   return true;
 }

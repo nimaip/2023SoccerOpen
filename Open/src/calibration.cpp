@@ -12,7 +12,10 @@ Calibration::Calibration(){
 
 void Calibration::calibrate(int *lineVal){
 
-
+  for (int i = 0; i < 48; i++)
+  {
+      calVal[i] = 50;
+  }
 for (int i = 0; i < 48; i++)
 {
 if(calVal[i]<lineVal[i])

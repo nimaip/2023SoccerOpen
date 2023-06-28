@@ -1,6 +1,8 @@
 #include <Arduino.h>
 #include <trig.h>
 #include <compassSensor.h>
+#include <orbit.h>
+#include <ESC.h>
 
 #ifndef MOTOR_H
 #define MOTOR_H
@@ -10,7 +12,7 @@ class Motor
 public:
     Motor();
     void Move(double intended_angle, double motor_power, double robotOrientation);
-    void Process(double intended_angle, double motor_power, double lineAngle, double robotOrientation);
+    void Process(double intended_angle, double motor_power, double lineAngle, double robotOrientation, Orbit& orbit, bool backGate, int goalAngle, double Chord, bool linePresent, ESC& esc);
     void Stop();
     double RecordDirection();
     double FindCorrection(double orientation, double robotOrientation);
@@ -21,8 +23,8 @@ public:
     double correction;
     bool defenseStop;
 
-private:
     double initialOrientation = 0;
+private:
     double max_power;
     double powerFR;
     double powerFL;
@@ -48,6 +50,8 @@ private:
     int pincontrolRL;
 
     double orientationVal;
+    int stopTime;
+    bool setTime;
 };
 
 #endif

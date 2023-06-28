@@ -69,11 +69,11 @@ int *LineDetection::GetValues()
         }
         lineValues[i] = val;
     }
-    for(int i = 0; i < 48; i++){
-        Serial.print(i);
-        Serial.print(": ");
-        Serial.println(lineValues[i]);
-    }
+    // for(int i = 0; i < 48; i++){
+    //     Serial.print(i);
+    //     Serial.print(": ");
+    //     Serial.println(lineValues[i]);
+    // }
     return lineValues;
 };
 

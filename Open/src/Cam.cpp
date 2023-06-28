@@ -21,7 +21,6 @@ double Cam::CamCalc(Goal &goal)
   // Serial.print(Serial2.available());
   if (Serial2.available() > 0)
   {
-    Serial.println(Serial2.available());
 
     for (int i = 0; i < Serial2.available(); i++)
     {
@@ -31,7 +30,6 @@ double Cam::CamCalc(Goal &goal)
       {
         ball = strtod(buffer.c_str(), NULL);
         ball = FilterAngle(ball, validBallAngle);
-        Serial.println(ball);
         ball = dissapear(ball, actualBallDistance, validBallAngle);
 
 
@@ -62,9 +60,10 @@ double Cam::CamCalc(Goal &goal)
       else if (read == 'd')
       {
         yellowGoal = strtod(buffer.c_str(), NULL);
-        // Serial.print("yellow: ");
-        // Serial.println(yellowGoal);
+
         yellowGoal = FilterAngle(yellowGoal, validYellowAngle);
+                Serial.print("yellow: ");
+        Serial.println(yellowGoal);
         // yellowGoal = ComplimentaryFilterAngle(yellowGoal, validYellowAngle);
         buffer = "";
         validYellowAngle = yellowGoal;
@@ -73,7 +72,7 @@ double Cam::CamCalc(Goal &goal)
       {
         ballDistance = strtod(buffer.c_str(), NULL);
         ballDistance = FilterAngle(ballDistance, validBallDistance);
-        actualBallDistance = ComplimentaryFilterDistance(ballDistance, validBallDistance);
+        // actualBallDistance = ComplimentaryFilterDistance(ballDistance, validBallDistance);
         actualBallDistance = 6.8 * exp(0.019 * ballDistance);
 
         Serial.print("Actual Distance: ");
@@ -95,7 +94,7 @@ double Cam::CamCalc(Goal &goal)
       {
         blueGoalDistance = strtod(buffer.c_str(), NULL);
         blueGoalDistance = FilterAngle(blueGoalDistance, validBlueGoalDistance);
-        blueGoalDistance = ComplimentaryFilterDistance(blueGoalDistance, validBlueGoalDistance);
+        // blueGoalDistance = ComplimentaryFilterDistance(blueGoalDistance, validBlueGoalDistance);
         buffer = "";
         validBlueGoalDistance = blueGoalDistance;
         // Serial.print("Blue Goal Distance: ");
@@ -135,8 +134,6 @@ double Cam::FilterAngle(double angle, double validAngle)
 
 double Cam::dissapear(double angle, double distance, double validAngle)
 {
-  Serial.print("validDistance: ");
-  Serial.println(validDistance);
   if (dissapeared == true)
   {
 

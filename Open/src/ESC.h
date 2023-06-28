@@ -18,7 +18,8 @@ public:
     ESC();
     void dribbler1(int speed,int first);
     void dribbler2(int speed, int first);
-    void ESC::runDribbler(double ballAngle,double dist, bool capture);
+    void spinDribbler();
+    void runDribbler(double ballAngle,double dist, bool capture1, bool capture2);
 };
 
 #endif
