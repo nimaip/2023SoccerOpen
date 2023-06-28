@@ -28,31 +28,29 @@ Motor::Motor()
     max_power = 0;
 };
 
-void Motor::Process(double intended_angle, double motor_power, double lineAngle, double robotOrientation, Orbit &orbit, bool backGate, int goalAngle, double Chord, bool linePresent, ESC& esc)
+void Motor::Process(double intended_angle, double motor_power, double lineAngle, double robotOrientation, Orbit &orbit, bool backGate, int goalAngle, double Chord, bool linePresent, ESC& esc, int anglebisc)
 {
     if (backGate == true)
     {
-        if (Chord < 0.8 && orbit.inOrientation == false)
+        if (lineAngle != -1 && Chord < 0.8)
         {
-            lineAngle = -1;
+            projection = true;
         }
-        if (lineAngle != -1 && orbit.inOrientation == false)
+        if (lineAngle != -1 && orbit.inOrientation == false && projection == false)
         {
             Move(lineAngle, 0.6, robotOrientation);
         }
         else if (orbit.inPos == true)
         {
-            Serial.println("hi");
             esc.spinDribbler();
             if (orbit.inOrientation == true)
             {
                 if(setTime == true){
-                stopTime = millis()+1000;
+                stopTime = millis()+2000;
                 setTime = false;
                 }
                 esc.spinDribbler();
-                Serial.println("hii");
-                if(millis()<stopTime){
+                if(millis() >= 1000 && millis() < stopTime){
                 Spin(0.7, 1);
                 }
                 else{
@@ -63,7 +61,11 @@ void Motor::Process(double intended_angle, double motor_power, double lineAngle,
         }
         else
         {
-            Serial.println(orbit.GetToSpinShotPosition(linePresent, goalAngle));
+            if (projection)
+            {
+                
+            }
+            
             Move(orbit.GetToSpinShotPosition(linePresent, goalAngle), 0.6, robotOrientation);
         }
 
@@ -71,7 +73,14 @@ void Motor::Process(double intended_angle, double motor_power, double lineAngle,
 
     else if (lineAngle != -1)
     {
+        if(Chord < 0.8){
+            lineAngle = projectionCalc(anglebisc, intended_angle);
         Move(lineAngle, motor_power, robotOrientation);
+        }
+        else{
+        Move(lineAngle, motor_power, robotOrientation);
+        }
+    
     }
     else
     {
@@ -79,6 +88,28 @@ void Motor::Process(double intended_angle, double motor_power, double lineAngle,
     }
 }
 
+int Motor::projectionCalc(int anglebisc, int robotAngle){
+
+            int lineAngle = anglebisc+90;
+        if(lineAngle >360){
+            lineAngle = lineAngle-360;
+        }
+        vectorX = sin(toRadians(lineAngle));
+        vectorY = cos(toRadians(lineAngle));
+        robotAngleX = sin(toRadians(robotAngle));
+        robotAngleY = cos(toRadians(robotAngle));
+        dotProduct = (robotAngleX * vectorX) + (robotAngleY * vectorY);
+        denominator = pow(vectorX, 2) + pow(vectorY, 2);
+        robotAngleX = (dotProduct / denominator) * vectorX;
+        robotAngleY = (dotProduct / denominator) * vectorY;
+
+        double projectionAngle = toDegrees(atan2(robotAngleX, robotAngleY));
+        if (projectionAngle < 0)
+        {
+            projectionAngle = projectionAngle + 360;
+        }
+        return projectionAngle;
+}
 void Motor::Move(double intended_angle, double motor_power, double robotOrientation)
 {
     speedRR = 0;
