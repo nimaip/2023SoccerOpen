@@ -142,8 +142,8 @@ void setup() {
   Serial2.begin(19200);
   pinMode(10, OUTPUT);
   // delay(5000);
-  esc.dribbler1(0, 0);
-  esc.dribbler2(0, 0);
+  esc.dribbler1(0, 1);
+  esc.dribbler2(0, 1);
   delay(1000);
 
 
@@ -153,28 +153,24 @@ void loop() {
 
 
 
-  esc.dribbler1(0,1);
-  esc.dribbler2(0,1);
+  // cam.CamCalc(goal);
+  esc.runDribbler(cam.ball, cam.validDistance, goal.lightGateOne(), goal.lightGateTwo(), orbit.inPos, true);
+  // goal.Kick(cam.yellowGoalDistance,goal.lightGateOne(), esc);
 
-
-  cam.CamCalc(goal);
-  esc.runDribbler(cam.ball, cam.validDistance, goal.lightGateOne(), goal.lightGateTwo());
-  goal.Kick(cam.yellowGoalDistance,goal.lightGateOne(), esc);
-
-  calibration.calState(lineDetection);
-  motor.RecordDirection();
+  // calibration.calState(lineDetection);
+  // motor.RecordDirection();
   lineDetection.Process(calibration.calVal);
 
-
+// cam.tooFar = true;
 
   //defense
-  // defense.defense(cam.ball,cam.yellowGoal,lineDetection, motor); // run lineavoidance process before
-  // motor.Process(defense.defenseAngle, 0.6, lineDetection.avoidanceAngle, initialOrientation);
+  // defense.defense(cam.ball,cam.yellowGoal,lineDetection, motor,cam.tooFar); // run lineavoidance process before
+  // motor.Process(defense.defenseAngle, 0.6, lineDetection.avoidanceAngle, motor.initialOrientation,orbit,goal.lightGateTwo(),cam.yellowGoal,lineDetection.Chord(),lineDetection.linepresent,esc,lineDetection.anglebisc,orbit.GetToHomePositionOffense(cam.yellowGoalDistance, cam.yellowGoal, cam.tooFar), cam.validDistance,cam.ball,true);
 
   //offense
 
 
-  motor.Process(orbit.CalculateRobotAngle2(cam.ball, 0, cam.validDistance), 0.7, lineDetection.avoidanceAngle, goal.Process(cam.ball, motor.compassSensor.getOrientation(), cam.yellowGoal, motor.initialOrientation),orbit, goal.lightGateTwo(), cam.yellowGoal, lineDetection.Chord(), lineDetection.linepresent, esc,lineDetection.anglebisc,   orbit.GetToHomePositionOffense(cam.yellowGoalDistance, cam.yellowGoal, cam.tooFar));
+  // motor.Process(orbit.CalculateRobotAngle2(cam.ball, 0, cam.validDistance), 0.65, lineDetection.avoidanceAngle, goal.Process(cam.ball, motor.compassSensor.getOrientation(), cam.yellowGoal, motor.initialOrientation, cam.tooFar),orbit, goal.lightGateTwo(), cam.yellowGoal, lineDetection.Chord(), lineDetection.linepresent, esc,lineDetection.anglebisc,   orbit.GetToHomePositionOffense(cam.yellowGoalDistance, cam.yellowGoal, cam.tooFar),cam.validDistance, cam.ball, false);
   delay(1000);
 }
 

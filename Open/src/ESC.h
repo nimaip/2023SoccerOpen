@@ -19,7 +19,7 @@ public:
     void dribbler1(int speed,int first);
     void dribbler2(int speed, int first);
     void spinDribbler();
-    void runDribbler(double ballAngle,double dist, bool capture1, bool capture2);
+    void runDribbler(double ballAngle,double dist, bool capture1, bool capture2, bool inPos, bool defense);
 };
 
 #endif

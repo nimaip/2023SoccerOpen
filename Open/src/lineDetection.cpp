@@ -158,7 +158,6 @@ double LineDetection::Process(int *calibrateVal)
     GetAngle(calibrateVal);
     if (linepresent == true)
     {
-        outOfBounds = false;
 
         if (initialAngle == -1)
         {
@@ -173,7 +172,7 @@ double LineDetection::Process(int *calibrateVal)
         }
         // Serial.print("angle Diff: ");
         // Serial.println(angleDiff);
-        if (angleDiff > 90 && lineSwitch == false)
+        if (angleDiff > 120 && lineSwitch == false)
         {
             lineSwitch = true;
             angleDiff = 0;
@@ -181,7 +180,7 @@ double LineDetection::Process(int *calibrateVal)
         if (lineSwitch == true)
         {
             avoidanceAngle = anglebisc;
-            if (angleDiff > 90)
+            if (angleDiff > 120)
             {
                 lineSwitch = false;
             }
@@ -198,17 +197,11 @@ double LineDetection::Process(int *calibrateVal)
     }
     else if (linepresent == false)
     {
-        if (lineSwitch == true)
-        {
-            outOfBounds = true;
-        }
 
-        else
-        {
             initialAngle = -1;
             avoidanceAngle = -1;
             lineSwitch = false;
-        }
+        
     }
     Serial.print("line: ");
     Serial.println(avoidanceAngle);

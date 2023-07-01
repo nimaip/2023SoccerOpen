@@ -12,9 +12,12 @@ Goal::Goal()
     pinMode(38,INPUT);
 
 }
-double Goal::Process(double ball, int Orientation, double goalOrientation, int initialOrientation)
+double Goal::Process(double ball, int Orientation, double goalOrientation, int initialOrientation, bool tooFar)
 {
-if(ball<60||ball>300){
+if(tooFar == true){
+    return initialOrientation;
+}
+else if(ball<60||ball>300){
 
     if (goalOrientation > 180)
     {

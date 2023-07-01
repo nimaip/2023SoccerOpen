@@ -4,18 +4,19 @@ Defense::Defense()
 {
 }
 
-void Defense::defense(double ballAngle, int goalAngle, LineDetection &lineDetection, Motor &motor, double xCoord, double yCoord, bool dissapear)
+void Defense::defense(double ballAngle, int goalAngle, LineDetection &lineDetection, Motor &motor, bool dissapear)
 {
     if (dissapear == true)
     {
         motor.defenseStop = false;
+
         if (goalAngle > 185)
         {
-            xcomp = -1;
+            xcomp = -0.98;
         }
         else if (goalAngle < 175)
         {
-            xcomp = 1;
+            xcomp = 0.98;
         }
         else
         {
@@ -39,15 +40,17 @@ void Defense::defense(double ballAngle, int goalAngle, LineDetection &lineDetect
             {
                 defenseAngle = defenseAngle + 360;
             }
+        if (lineDetection.linepresent == true && lineDetection.Chord() < 0.8 && ((abs(lineDetection.anglebisc - defenseAngle)) < 110))
+        {
+            lineDetection.avoidanceAngle = -1;
+            
+            defenseAngle = motor.projectionCalc(lineDetection.anglebisc,defenseAngle);
+        }
         }
     }
     else
     {
-        if (yCoord > 55)
-        {
-            defenseAngle = 180;
-            return;
-        }
+
         Serial.println(lineDetection.Chord());
         if (lineDetection.Chord() < 0.8)
         {

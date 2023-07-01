@@ -5,7 +5,7 @@
 class Goal {
     public:
         Goal();
-        double Process(double ball, int Orientation, double goalOrientation, int initialOrientation);
+        double Process(double ball, int Orientation, double goalOrientation, int initialOrientation, bool tooFar);
         double goalAngle;
         void Kick(double goalDist,bool capture, ESC& esc);
         bool lightGateOne();

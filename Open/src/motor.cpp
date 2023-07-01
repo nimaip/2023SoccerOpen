@@ -28,97 +28,147 @@ Motor::Motor()
     max_power = 0;
 };
 
-void Motor::Process(double intended_angle, double motor_power, double lineAngle, double robotOrientation, Orbit &orbit, bool backGate, int goalAngle, double Chord, bool linePresent, ESC& esc, int anglebisc, double homeAngle)
+void Motor::Process(double intended_angle, double motor_power, double lineAngle, double robotOrientation, Orbit &orbit, bool backGate, int goalAngle, double Chord, bool linePresent, ESC &esc, int anglebisc, double homeAngle, int ballDistance, int ballAngle, bool defense)
 {
-if(homeAngle != -1){
-    if(homeAngle == -2){
-        Stop();
+    if(defense == true){
+        if(lineAngle != -1){
+            Move(lineAngle, motor_power, robotOrientation);
+        }
+        else{
+        Move(intended_angle, motor_power, robotOrientation);
+        }
     }
     else{
-    Move(homeAngle, motor_power, robotOrientation);
-    }
-}
-else{
-    if (backGate == true)
+    if (homeAngle != -1)
     {
-        if (lineAngle != -1 && Chord < 0.8)
+        if (homeAngle == -2)
         {
-            projection = true;
+            Stop();
         }
-        if (lineAngle != -1 && orbit.inOrientation == false && projection == false)
+        else if (lineAngle != -1)
         {
-            Move(lineAngle, 0.6, robotOrientation);
-        }
-        else if (orbit.inPos == true)
-        {
-            esc.spinDribbler();
-            if (orbit.inOrientation == true)
+            if (Chord < 0.8 && ((abs(anglebisc - homeAngle)) < 110))
             {
-                if(setTime == true){
-                stopTime = millis()+2000;
-                setTime = false;
-                }
-                esc.spinDribbler();
-                if(millis() >= 1000 && millis() < stopTime){
-                Spin(0.7, 1);
-                }
-                else{
-                    Stop();
-                }
+                lineAngle = projectionCalc(anglebisc, intended_angle);
+                Move(lineAngle, motor_power, robotOrientation);
             }
-            Spin(0.3, orbit.InOrientationSpinShot(compassSensor.getOrientation(), initialOrientation));
+            else
+            {
+                Move(lineAngle, motor_power, robotOrientation);
+            }
         }
         else
         {
-            if (projection)
-            {
-                Move(projectionCalc(anglebisc, orbit.GetToSpinShotPosition(linePresent, goalAngle)),0.6, robotOrientation);
-            }
-            
-            Move(orbit.GetToSpinShotPosition(linePresent, goalAngle), 0.6, robotOrientation);
+            Move(homeAngle, motor_power, robotOrientation);
         }
-
-    }
-
-    else if (lineAngle != -1)
-    {
-        if(Chord < 0.8){
-            lineAngle = projectionCalc(anglebisc, intended_angle);
-        Move(lineAngle, motor_power, robotOrientation);
-        }
-        else{
-        Move(lineAngle, motor_power, robotOrientation);
-        }
-    
     }
     else
     {
-        Move(intended_angle, motor_power, robotOrientation);
+        if (backGate == true)
+        {
+            if (lineAngle != -1 && Chord < 0.8 && ((abs(anglebisc - orbit.GetToSpinShotPosition(linePresent, goalAngle, anglebisc))) < 110))
+            {
+                projection = true;
+            }
+            else
+            {
+                projection = false;
+            }
+            if (lineAngle != -1 && orbit.inOrientation == false && projection == false)
+            {
+                robotOrientation = compassSensor.getOrientation();
+                Move(lineAngle, 0.28, robotOrientation);
+            }
+            else if (orbit.inPos == true)
+            {
+                    orbit.GetToSpinShotPosition(linePresent, goalAngle, anglebisc);
+                esc.spinDribbler();
+                if (orbit.inOrientation == true)
+                { 
+                    if (setTime == true)
+                    {
+                        stopTime = millis() + 4000;
+                        setTime = false;
+                    }
+                    esc.spinDribbler();
+                    if (millis() >= (stopTime - 2000))
+                    {
+                        if(goalAAngleSide >180){
+                           FinalSpin(0.2, -1); 
+                        }
+                        else{
+                        FinalSpin(0.2, 1);
+                        }
+                    }
+                }
+                else{
+                    setTime = true;
+                }
+                Spin(0.13, orbit.InOrientationSpinShot(compassSensor.getOrientation(), initialOrientation,goalAAngleSide));
+            }
+            else
+            {
+                
+                goalAAngleSide = goalAngle;
+                setTime = true;
+                if (projection)
+                {
+                    Move(projectionCalc(anglebisc, orbit.GetToSpinShotPosition(linePresent, goalAngle, anglebisc)), 0.33, robotOrientation);
+                }
+                else
+                {
+                    Move(orbit.GetToSpinShotPosition(linePresent, goalAngle, anglebisc), 0.33, robotOrientation);
+                }
+            }
+        }
+
+        else if (lineAngle != -1)
+        {
+            orbit.inOrientation = false;
+            orbit.inPos = false;
+            if (Chord < 0.8 && ((abs(anglebisc - intended_angle)) < 90))
+            {
+                lineAngle = projectionCalc(anglebisc, intended_angle);
+                Move(lineAngle, slowDown(ballDistance, ballAngle, motor_power), robotOrientation);
+            }
+            else
+            {
+                Move(lineAngle, slowDown(ballDistance, ballAngle, motor_power), robotOrientation);
+            }
+        }
+        else
+        {
+            orbit.inOrientation = false;
+            orbit.inPos = false;
+            Move(intended_angle, slowDown(ballDistance, ballAngle, motor_power), robotOrientation);
+        }
+    }
     }
 }
-}
 
-int Motor::projectionCalc(int anglebisc, int robotAngle){
+int Motor::projectionCalc(int anglebisc, int robotAngle)
+{
 
-            int lineAngle = anglebisc+90;
-        if(lineAngle >360){
-            lineAngle = lineAngle-360;
-        }
-        vectorX = sin(toRadians(lineAngle));
-        vectorY = cos(toRadians(lineAngle));
-        robotAngleX = sin(toRadians(robotAngle));
-        robotAngleY = cos(toRadians(robotAngle));
-        dotProduct = (robotAngleX * vectorX) + (robotAngleY * vectorY);
-        denominator = pow(vectorX, 2) + pow(vectorY, 2);
-        robotAngleX = (dotProduct / denominator) * vectorX;
-        robotAngleY = (dotProduct / denominator) * vectorY;
+    int lineAngle = anglebisc + 90;
+    if (lineAngle > 360)
+    {
+        lineAngle = lineAngle - 360;
+    }
+    vectorX = sin(toRadians(lineAngle));
+    vectorY = cos(toRadians(lineAngle));
+    robotAngleX = sin(toRadians(robotAngle));
+    robotAngleY = cos(toRadians(robotAngle));
+    dotProduct = (robotAngleX * vectorX) + (robotAngleY * vectorY);
+    denominator = pow(vectorX, 2) + pow(vectorY, 2);
+    robotAngleX = (dotProduct / denominator) * vectorX;
+    robotAngleY = (dotProduct / denominator) * vectorY;
 
-        double projectionAngle = toDegrees(atan2(robotAngleX, robotAngleY));
-        if (projectionAngle < 0)
-        {
-            projectionAngle = projectionAngle + 360;
-        }
-        return projectionAngle;
+    double projectionAngle = toDegrees(atan2(robotAngleX, robotAngleY));
+    if (projectionAngle < 0)
+    {
+        projectionAngle = projectionAngle + 360;
+    }
+    return projectionAngle;
 }
 void Motor::Move(double intended_angle, double motor_power, double robotOrientation)
 {
@@ -244,13 +294,13 @@ double Motor::FindCorrection(double orientation, double robotOrientation)
     }
 
     correction = -1 * (sin(toRadians(orientationVal)));
-    correction *= 0.57;
+    correction *= 0.55;
 
-    if (orientationVal > -10 && orientationVal < 0)
+    if (orientationVal > -5 && orientationVal < 0)
     {
         correction = 0;
     }
-    else if (orientationVal < 10 && orientationVal > 0)
+    else if (orientationVal < 5 && orientationVal > 0)
     {
         correction = 0;
     }
@@ -263,21 +313,17 @@ double Motor::FindCorrection(double orientation, double robotOrientation)
         correction = 1;
     }
 
-    // Serial.println("Correction : ");
-    // Serial.println(correction);
+    Serial.println("Correction : ");
+    Serial.println(correction);
 
     return correction;
 }
 
 void Motor::Spin(double speed, int direction)
 {
-    int motor_switch = 0;
-    motor_switch = digitalRead(39);
-    if (defenseStop == true)
-    {
-        Stop();
-    }
-    else if (motor_switch == HIGH)
+    Serial.println("hello");
+    speed *= 255;
+    if (digitalRead(39) == HIGH)
     {
         controlRL = direction < 0 ? LOW : HIGH;
         controlRR = direction > 0 ? LOW : HIGH;
@@ -295,5 +341,41 @@ void Motor::Spin(double speed, int direction)
     else
     {
         Stop();
+    }
+}
+
+void Motor::FinalSpin(double speed, int direction)
+{
+    speed *= 255;
+    if (digitalRead(39) == HIGH)
+    {
+        controlRL = direction < 0 ? LOW : HIGH;
+        controlRR = direction > 0 ? LOW : HIGH;
+        controlFL = direction < 0 ? LOW : HIGH;
+        controlFR = direction > 0 ? LOW : HIGH;
+        analogWrite(pinspeedFR, speed);
+        analogWrite(pinspeedFL, speed);
+        analogWrite(pinspeedRR, speed);
+        analogWrite(pinspeedRL, speed);
+        digitalWrite(pincontrolFL, controlFL);
+        digitalWrite(pincontrolFR, controlFR);
+        digitalWrite(pincontrolRR, controlRR);
+        digitalWrite(pincontrolRL, controlRL);
+        delay(300);
+Stop();
+        delay(1000);
+    }
+    else
+    {
+        Stop();
+    }
+}
+
+double Motor::slowDown(int ballDistance, int ballAngle, double motorPower){
+    if(ballAngle<195 && ballAngle>165 && ballDistance < 20){
+        return 0.36;
+    }
+    else{
+        return motorPower;
     }
 }

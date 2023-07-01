@@ -30,6 +30,9 @@ double Cam::CamCalc(Goal &goal)
       {
         ball = strtod(buffer.c_str(), NULL);
         ball = FilterAngle(ball, validBallAngle);
+        // Serial.print("ball BEFORE: ");
+        // Serial.println(ball);
+
         ball = dissapear(ball, actualBallDistance, validBallAngle);
 
 
@@ -91,8 +94,8 @@ double Cam::CamCalc(Goal &goal)
         // yellowGoalDistance= ComplimentaryFilterDistance(yellowGoalDistance, validYellowGoalDistance);
         buffer = "";
         validYellowGoalDistance = yellowGoalDistance;
-        // Serial.print("Yellow Goal Distance: ");
-        // Serial.println(validYellowGoalDistance);
+        Serial.print("Yellow Goal Distance: ");
+        Serial.println(yellowGoalDistance);
       }
       else if (read == 'f')
       {
@@ -151,13 +154,15 @@ double Cam::dissapear(double angle, double distance, double validAngle)
     }
     if (validCounter >= 3)
     {
+      
+      tooFar = false;
       dissapeared = false;
     }
-    if (validDistance < 40)
+    if (validDistance < 25)
     {
       return validAngle;
     }
-    else{
+    else if(dissapeared == true){
       tooFar = true;
       return -5;
     }
